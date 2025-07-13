@@ -1,0 +1,30 @@
+spring:
+#  elasticsearch:
+#    uris: https://localhost:9200
+#    username: elastic
+#    password: kDw0IEaQm7_bs4aSfPq3
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: m2sm2sm2s@
+    url: jdbc:mysql://127.0.0.1/m2s_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&useTimezone=true&allowPublicKeyRetrieval=true
+  ai:
+    openai:
+      base-url: https://api.deepseek.com
+      base-url2: https://api.chatanywhere.tech
+      api-key: sk-dc03fa49759b4356ba29a2bab0c6a62c
+      api-key2: sk-28noKxU9Jlto1PAtLkPRRZO7pS3LW78bYq2ivmc1DxWy2qoN
+      chat:
+        options:
+          model: deepseek-chat
+          model2: o3
+
+# 日志配置，可以打印es的qsl语句
+logging:
+  level:
+    tracer: trace
+
+# mybatis日志打印
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

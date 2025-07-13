@@ -35,8 +35,15 @@ public class SinaNewsBo {
     private String rawContent;
     private int areaLevel;
 
+
+    private int type;
+
     public String[] getKewordsArray() {
-        return ArrayUtil.reverse(keywords.split(","));
+        if (type == 0) {
+            return ArrayUtil.reverse(keywords.split(","));
+        } else {
+            return keywords.split(",");
+        }
     }
 
 

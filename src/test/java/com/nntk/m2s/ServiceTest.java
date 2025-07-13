@@ -35,43 +35,43 @@ public class ServiceTest {
 
     @Test
     public void spider() {
-        ISpiderService.spiderChinaNews();
+//        ISpiderService.spiderChinaNews();
 
     }
 
     @Test
     public void loadGeoData() throws IOException {
-        Workbook wb = new XSSFWorkbook(ResourceUtil.getStream("AMap_adcode_citycode.xlsx"));
-        Sheet sheet0 = wb.getSheetAt(0);
-        //获取第一张表
-        for (int i = 0; i <= sheet0.getLastRowNum(); i++) {
-            Row row = sheet0.getRow(i);
-            String name = row.getCell(0).getStringCellValue();
-            String adcode = row.getCell(1).toString();
-            Cell citycode_cell = row.getCell(2);
-            String centerNum = adcode.substring(2, 4);
-            String rightNum = adcode.substring(4, 6);
-
-            if (adcode.equals("710000")) {
-                log.info(name + " - " + adcode);
-            }
-
-            if (citycode_cell == null) {
-                log.info("省份:" + name + " - " + adcode);
-
-            } else {
-                if (rightNum.equals("00") && !centerNum.equals("00")) {
-                    log.info("城市:" + name + " - " + adcode);
-
-                }
-
-                if (!centerNum.equals("00") && !rightNum.equals("00") && !rightNum.equals("01")) {
-                    log.info("县城:" + name + " - " + adcode);
-
-                }
-
-
-            }
-        }
+//        Workbook wb = new XSSFWorkbook(ResourceUtil.getStream("AMap_adcode_citycode.xlsx"));
+//        Sheet sheet0 = wb.getSheetAt(0);
+//        //获取第一张表
+//        for (int i = 0; i <= sheet0.getLastRowNum(); i++) {
+//            Row row = sheet0.getRow(i);
+//            String name = row.getCell(0).getStringCellValue();
+//            String adcode = row.getCell(1).toString();
+//            Cell citycode_cell = row.getCell(2);
+//            String centerNum = adcode.substring(2, 4);
+//            String rightNum = adcode.substring(4, 6);
+//
+//            if (adcode.equals("710000")) {
+//                log.info(name + " - " + adcode);
+//            }
+//
+//            if (citycode_cell == null) {
+//                log.info("省份:" + name + " - " + adcode);
+//
+//            } else {
+//                if (rightNum.equals("00") && !centerNum.equals("00")) {
+//                    log.info("城市:" + name + " - " + adcode);
+//
+//                }
+//
+//                if (!centerNum.equals("00") && !rightNum.equals("00") && !rightNum.equals("01")) {
+//                    log.info("县城:" + name + " - " + adcode);
+//
+//                }
+//
+//
+//            }
+//        }
     }
 }

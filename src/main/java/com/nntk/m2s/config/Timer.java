@@ -13,7 +13,7 @@ public class Timer {
     private ISpiderService spiderService;
 
 
-    @Scheduled(cron = "0 57 * * * *")
+    @Scheduled(cron = "0 23 * * * *")
     public void scanNews() {
         spiderService.spiderChinaNews();
         spiderService.spiderI18nNews();

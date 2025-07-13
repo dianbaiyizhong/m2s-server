@@ -143,7 +143,7 @@ public class SpiderServiceImpl implements ISpiderService {
                             newsEntity.setThumbUrl(imagesUrls.get(0));
                             newsEntity.setImages(JSON.toJSONString(newsEntity.getImages()));
                         }
-
+                        newsEntity.setType(0);
                         parseDetail(newsEntity);
 
                         if (newsEntity.getAreaLevel() == 4) {
@@ -167,6 +167,10 @@ public class SpiderServiceImpl implements ISpiderService {
             return;
         }
 
+        if (StringUtils.isEmpty(newsEntity.getContent())) {
+            log.warn("由于新闻没有ai正文内容，判断新闻质量不高，未入库:{}", newsEntity.getTitle());
+            return;
+        }
         TNews news = new TNews();
         news.setTitle(newsEntity.getTitle());
         news.setNewsContext(newsEntity.getContent());
@@ -224,6 +228,8 @@ public class SpiderServiceImpl implements ISpiderService {
 
 
                 newsEntity.setSourceUrl(sourceUrl);
+                newsEntity.setType(1);
+
                 parseDetail(newsEntity);
                 insertNews2Db(newsEntity);
 
@@ -287,7 +293,7 @@ public class SpiderServiceImpl implements ISpiderService {
         String prompt = title + """
                 。
                 这是最近热点新闻，请返回json格式，json对象包含type，content，area三个属性，json格式是为了方便解析，请别返回除了json之外其他内容
-                请分析这个新闻具体发生的国家，省份，城市，地区。如果没有明显的地区性，type返回0，area和content都为空；
+                请分析这个新闻具体发生的国家，省份，城市，地区。如果没有明显的地区性，type返回0
                 如果有明显地区性，返回1，将发生地返回在area字段,area字段可以将地名逗号分隔拼起来返回字符串；
                 将新闻内容整理成markdown格式放在content字段
                 """;
@@ -331,13 +337,12 @@ public class SpiderServiceImpl implements ISpiderService {
     }
 
     private void matchText(SinaNewsBo sinaNewsBo) {
-        boolean matchTitle = judgeByStr(sinaNewsBo, sinaNewsBo.getTitle());
-        if (!matchTitle) {
-            log.info("标题没有匹配，继续用正文匹配");
-            boolean matchContent = judgeByStr(sinaNewsBo, sinaNewsBo.getRawContent());
-
-            if (matchContent) {
-                log.info("正文匹配成功:{}", sinaNewsBo.getAreaLevel() + ":" + sinaNewsBo.getPosInfoId());
+        boolean  matchContent= judgeByStr(sinaNewsBo, sinaNewsBo.getRawContent());
+        if (!matchContent) {
+            log.info("正文没有匹配，继续用标题匹配");
+            boolean matchTitle = judgeByStr(sinaNewsBo, sinaNewsBo.getTitle());
+            if (matchTitle) {
+                log.info("标题匹配成功:{}", sinaNewsBo.getAreaLevel() + ":" + sinaNewsBo.getPosInfoId());
             }
         }
     }

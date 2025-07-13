@@ -76,7 +76,7 @@ public class NewsServiceImpl implements INewsService {
 
     @Override
     public PageResult<NewsVo> listNews(NewsRequestForm form) {
-        LocalDate oneWeekAgo = LocalDate.now().minusDays(50);
+        LocalDate oneWeekAgo = LocalDate.now().minusDays(1);
 
         List<TNews> mapNewsDBList = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
                 .isNotNull(TNews::getAreaLevel)
