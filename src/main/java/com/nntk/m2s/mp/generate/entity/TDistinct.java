@@ -12,7 +12,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author nntk
- * @since 2025-07-12
+ * @since 2025-07-16
  */
 @TableName("t_distinct")
 public class TDistinct implements Serializable {

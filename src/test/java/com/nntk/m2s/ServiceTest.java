@@ -35,7 +35,7 @@ public class ServiceTest {
 
     @Test
     public void spider() {
-//        ISpiderService.spiderChinaNews();
+        ISpiderService.spiderI18nNews();
 
     }
 

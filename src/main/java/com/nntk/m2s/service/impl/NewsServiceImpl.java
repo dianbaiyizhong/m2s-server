@@ -1,5 +1,7 @@
 package com.nntk.m2s.service.impl;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -20,6 +22,7 @@ import com.nntk.m2s.pojo.vo.NewsVo;
 import com.nntk.m2s.result.PageResult;
 import com.nntk.m2s.service.IAiService;
 import com.nntk.m2s.service.INewsService;
+import com.nntk.m2s.utils.DateUtils;
 import com.nntk.m2s.utils.mybatis.LastUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -78,18 +81,24 @@ public class NewsServiceImpl implements INewsService {
     public PageResult<NewsVo> listNews(NewsRequestForm form) {
         LocalDate oneWeekAgo = LocalDate.now().minusDays(1);
 
+        String selectDay = DateUtils.getCurrentDay(form.getDate());
+
+        String lastDay = DateUtils.getLastDay(form.getDate());
+
         List<TNews> mapNewsDBList = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
-                .isNotNull(TNews::getAreaLevel)
-                .eq(TNews::getMapNews, false).ne(TNews::getAreaId, 0)
-                .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 1), wrapper -> wrapper
-                        .or().eq(TNews::getAreaLevel, AreaLevelType.PROVINCE.getCode())
-                        .or().eq(TNews::getAreaLevel, AreaLevelType.CITY.getCode())
-                )
-                .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 2), wrapper -> wrapper
-                        .or().eq(TNews::getAreaLevel, AreaLevelType.COUNTRY.getCode())
-                )
-                .apply("date_format (news_time,'%Y-%m-%d') >= '" + oneWeekAgo + "'")
-                .orderByDesc(TNews::getNewsTime)
+                        .isNotNull(TNews::getAreaLevel)
+                        .eq(TNews::getMapNews, false).ne(TNews::getAreaId, 0)
+                        .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 1), wrapper -> wrapper
+                                .or().eq(TNews::getAreaLevel, AreaLevelType.PROVINCE.getCode())
+                                .or().eq(TNews::getAreaLevel, AreaLevelType.CITY.getCode())
+                        )
+                        .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 2), wrapper -> wrapper
+                                .or().eq(TNews::getAreaLevel, AreaLevelType.COUNTRY.getCode())
+                        )
+//                .apply("date_format (news_time,'%Y-%m-%d') >= '" + oneWeekAgo + "'")
+                        .apply("date_format (news_time,'%Y-%m-%d') <=" + "'" + selectDay + "'")
+                        .apply("date_format (news_time,'%Y-%m-%d') >= '" + lastDay + "'")
+                        .orderByDesc(TNews::getNewsTime)
         );
         return wrapperMapNews(mapNewsDBList);
     }

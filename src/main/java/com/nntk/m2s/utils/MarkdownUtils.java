@@ -21,6 +21,9 @@ public class MarkdownUtils {
     }
 
     public static String getJson(String markdownText) {
+        if (!markdownText.contains("```json")) {
+            return markdownText;
+        }
         String sourceRegex = "```json(.*?)```";
         String source = ReUtil.get(sourceRegex, markdownText, 1);
         return source;

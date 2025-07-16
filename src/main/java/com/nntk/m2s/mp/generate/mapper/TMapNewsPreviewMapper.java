@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TMapNewsPreview;
  * </p>
  *
  * @author nntk
- * @since 2025-07-12
+ * @since 2025-07-16
  */
 public interface TMapNewsPreviewMapper extends BaseMapper<TMapNewsPreview> {
 

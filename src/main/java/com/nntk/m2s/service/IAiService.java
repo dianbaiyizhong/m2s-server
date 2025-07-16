@@ -6,12 +6,10 @@ public interface IAiService {
 
     public String getDeepSeekResponse(String prompt);
 
+    public String getBailianResponse(String prompt);
+
     public String getRawDeepSeekResponse(String prompt);
 
-
     public List<String> getBrowserUseResponse(List<String> prompt);
-
-
-
 
 }

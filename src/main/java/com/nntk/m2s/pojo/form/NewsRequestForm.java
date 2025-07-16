@@ -8,4 +8,6 @@ public class NewsRequestForm {
 
     private Integer rangeType;
 
+    private String date;
+
 }

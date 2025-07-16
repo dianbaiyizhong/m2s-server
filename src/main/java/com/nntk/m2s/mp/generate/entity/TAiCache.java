@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -12,7 +13,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author nntk
- * @since 2025-07-12
+ * @since 2025-07-16
  */
 @TableName("t_ai_cache")
 public class TAiCache implements Serializable {
@@ -27,6 +28,8 @@ public class TAiCache implements Serializable {
     private String content;
 
     private String promptMd5;
+
+    private LocalDateTime createTime;
     
     public Integer getId() {
         return id;
@@ -59,6 +62,14 @@ public class TAiCache implements Serializable {
       public void setPromptMd5(String promptMd5) {
           this.promptMd5 = promptMd5;
       }
+    
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+      public void setCreateTime(LocalDateTime createTime) {
+          this.createTime = createTime;
+      }
 
     @Override
     public String toString() {
@@ -67,6 +78,7 @@ public class TAiCache implements Serializable {
                       ", prompt = " + prompt +
                       ", content = " + content +
                       ", promptMd5 = " + promptMd5 +
+                      ", createTime = " + createTime +
                   "}";
     }
 }

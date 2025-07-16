@@ -230,8 +230,12 @@ public class SpiderServiceImpl implements ISpiderService {
                 newsEntity.setSourceUrl(sourceUrl);
                 newsEntity.setType(1);
 
-                parseDetail(newsEntity);
-                insertNews2Db(newsEntity);
+                try {
+                    parseDetail(newsEntity);
+                    insertNews2Db(newsEntity);
+                } catch (Exception e) {
+                    log.error("解析异常:{}:{}", title, e.getMessage());
+                }
 
             }
 
@@ -292,18 +296,19 @@ public class SpiderServiceImpl implements ISpiderService {
 
         String prompt = title + """
                 。
-                这是最近热点新闻，请返回json格式，json对象包含type，content，area三个属性，json格式是为了方便解析，请别返回除了json之外其他内容
-                请分析这个新闻具体发生的国家，省份，城市，地区。如果没有明显的地区性，type返回0
-                如果有明显地区性，返回1，将发生地返回在area字段,area字段可以将地名逗号分隔拼起来返回字符串；
-                将新闻内容整理成markdown格式放在content字段
+                以上是一个网络新闻标题，请联网搜索，返回一个json对象，包含type，area两个属性;
+                type：如果这是一条地方新闻返回1，否则返回0；如果等于0，就不需要area，返回空即可;
+                如果这是一条国际新闻，则判断是否与与特定的国家关联上。如果是，也可以返回type为1
+                area：发生地（xxx国，xxx省,xxx市）如果具体不到城市，那就返回省份;如果是外国的，那就返回国名例如xxx国
                 """;
-        String deepSeekResponse = aiService.getDeepSeekResponse(prompt);
+        String deepSeekResponse = aiService.getBailianResponse(prompt);
 
         JSONObject aiBody = JSON.parseObject(deepSeekResponse);
-        sinaNewsBo.setContent(aiBody.getString("content"));
+
+
         if (aiBody.getInteger("type") == 0) {
             log.warn("这个新闻ai判断没有明显地区性。【{}】", sinaNewsBo.getTitle());
-            matchText(sinaNewsBo);
+            // matchText(sinaNewsBo);
         } else {
             log.info("aiBody:{}", aiBody);
             sinaNewsBo.setKeywords(aiBody.getString("area"));
@@ -331,13 +336,23 @@ public class SpiderServiceImpl implements ISpiderService {
                 log.info("ai返回的地名没有识别到，那就使用文本判断");
                 matchText(sinaNewsBo);
             }
+
+            if (sinaNewsBo.getAreaLevel() != 0) {
+                String prompt2 = title + """
+                        。返回markdown格式那种比较详细的新闻概要
+                        """;
+                String content = aiService.getBailianResponse(prompt2);
+                sinaNewsBo.setContent(content);
+            }
+
+
         }
 
 
     }
 
     private void matchText(SinaNewsBo sinaNewsBo) {
-        boolean  matchContent= judgeByStr(sinaNewsBo, sinaNewsBo.getRawContent());
+        boolean matchContent = judgeByStr(sinaNewsBo, sinaNewsBo.getRawContent());
         if (!matchContent) {
             log.info("正文没有匹配，继续用标题匹配");
             boolean matchTitle = judgeByStr(sinaNewsBo, sinaNewsBo.getTitle());

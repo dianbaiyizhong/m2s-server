@@ -7,7 +7,7 @@ public class MysqlCodegen {
 
     public static void main(String[] args) {
         String projectPath = System.getProperty("user.dir") + "/" + "/src/main/java";
-        FastAutoGenerator.create("jdbc:mysql://localhost/m2s_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&useTimezone=true&allowPublicKeyRetrieval=true", "root", "root")
+        FastAutoGenerator.create("jdbc:mysql://114.67.75.238/m2s_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&useTimezone=true&allowPublicKeyRetrieval=true", "root", "m2sm2sm2s@")
                 .globalConfig(builder -> {
                     builder.author("nntk") // 设置作者
                             .outputDir(projectPath);
