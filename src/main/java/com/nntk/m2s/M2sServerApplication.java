@@ -12,10 +12,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         @MapperScan("com.nntk.m2s.mp.generate.mapper")
 })
 @EnableScheduling
-public class MqServerApplication {
+public class M2sServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MqServerApplication.class, args);
+        SpringApplication.run(M2sServerApplication.class, args);
     }
 
 }

@@ -143,14 +143,19 @@ public class SpiderServiceImpl implements ISpiderService {
                             newsEntity.setThumbUrl(imagesUrls.get(0));
                             newsEntity.setImages(JSON.toJSONString(newsEntity.getImages()));
                         }
-                        newsEntity.setType(0);
-                        parseDetail(newsEntity);
 
-                        if (newsEntity.getAreaLevel() == 4) {
-                            log.warn("误判为国际新闻，跳过");
-                            continue;
+                        try {
+                            parseDetail(newsEntity);
+                            if (newsEntity.getAreaLevel() == 4) {
+                                log.warn("误判为国际新闻，跳过");
+                                continue;
+                            }
+                            insertNews2Db(newsEntity);
+                        } catch (Exception e) {
+                            log.error("解析异常:{}:{}", title, e.getMessage());
                         }
-                        insertNews2Db(newsEntity);
+
+
                     }
                 }
             }
@@ -339,9 +344,10 @@ public class SpiderServiceImpl implements ISpiderService {
 
             if (sinaNewsBo.getAreaLevel() != 0) {
                 String prompt2 = title + """
-                        。返回markdown格式那种比较详细的新闻概要
+                        。返回markdown格式那种比较详细的新闻概要，不需要图片内容。
                         """;
                 String content = aiService.getBailianResponse(prompt2);
+
                 sinaNewsBo.setContent(content);
             }
 
