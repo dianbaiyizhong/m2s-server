@@ -3,11 +3,14 @@ package com.nntk.m2s;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.nntk.m2s.mp.generate.entity.TCity;
+import com.nntk.m2s.mp.generate.entity.TCountry;
 import com.nntk.m2s.mp.generate.entity.TDistinct;
 import com.nntk.m2s.mp.generate.mapper.TCityMapper;
+import com.nntk.m2s.mp.generate.mapper.TCountryMapper;
 import com.nntk.m2s.mp.generate.mapper.TDistinctMapper;
 import com.nntk.m2s.service.IAiService;
 import com.nntk.m2s.service.INewsService;
@@ -23,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,25 +66,58 @@ public class ServiceTest {
     @Autowired
     private IAiService aiService;
 
+
+    @Autowired
+    private TCountryMapper countryMapper;
+
+
     @Test
-    public void getCityInfo() throws IOException {
+    public void updateCountryInfo() throws IOException {
+
+        List<TCountry> tCountries = countryMapper.selectList(null);
+        for (int i = 0; i < tCountries.size(); i++) {
+            TCountry country = tCountries.get(i);
+
+            try {
+
+                String prompt = tCountries.get(i) + """
+                        。请把我输出这个国家的经纬度，一定要精确，输出json格式，属性分别为lat，lng.
+                        """;
+
+                System.out.println(prompt);
+                String bailianResponse = aiService.getBailianResponse(prompt);
+
+
+                JSONObject jsonObject = JSON.parseObject(bailianResponse);
+                country.setLat(jsonObject.getDouble("lat"));
+                country.setLng(jsonObject.getDouble("lng"));
+                System.out.println(bailianResponse);
+                countryMapper.updateById(country);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(country);
+            }
+
+        }
+
+    }
+
+    @Test
+    public void updateCityInfo() throws IOException {
 
         List<TCity> tCities = cityMapper.selectList(null);
 
 
         for (int i = 0; i < tCities.size(); i++) {
-
             TCity tCity = tCities.get(i);
-
-
             String prompt = tCity.getName() + """
-                    。请把我输出这个城市的经纬度，输出json格式，属性分别为lat，lng.
+                    。请把我输出这个城市的经纬度，输出json格式，一定要精确,属性分别为lat，lng.
                     """;
-
-            System.out.println(prompt);
-            System.out.println(aiService.getBailianResponse(prompt));
-
-
+            String bailianResponse = aiService.getBailianResponse(prompt);
+            JSONObject jsonObject = JSON.parseObject(bailianResponse);
+            tCity.setLat(jsonObject.getDouble("lat"));
+            tCity.setLng(jsonObject.getDouble("lng"));
+            cityMapper.updateById(tCity);
         }
     }
 

@@ -94,7 +94,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
         loadGeoData();
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 5; i++) {
             Map<String, Object> paramMap = new LinkedHashMap<>();
             paramMap.put("pageid", "121");
             paramMap.put("lid", "1356");

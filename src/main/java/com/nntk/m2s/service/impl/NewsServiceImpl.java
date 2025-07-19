@@ -81,11 +81,8 @@ public class NewsServiceImpl implements INewsService {
     @Override
     @Cacheable(value = "news", key = "#form.date + '_' + #form.rangeType")
     public PageResult<NewsVo> listNews(NewsRequestForm form) {
-        System.out.println("=====");
         LocalDate oneWeekAgo = LocalDate.now().minusDays(1);
-
         String selectDay = DateUtils.getCurrentDay(form.getDate());
-
         String lastDay = DateUtils.getLastDay(form.getDate());
 
         List<TNews> mapNewsDBList = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
