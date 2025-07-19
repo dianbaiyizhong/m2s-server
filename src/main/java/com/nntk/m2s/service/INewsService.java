@@ -18,13 +18,5 @@ public interface INewsService {
 
     public PageResult<MapNewsCoverDTO> getMapNewsCoverList(Integer page, Integer rows);
 
-    public void spiderNewsListByAi(int type, List<TNews> dbResult);
-
-
-
-    public void scanInternational();
-
-
-    public void scanChina();
 
 }
