@@ -27,6 +27,7 @@ import com.nntk.m2s.utils.mybatis.LastUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -78,7 +79,9 @@ public class NewsServiceImpl implements INewsService {
     }
 
     @Override
+    @Cacheable(value = "news", key = "#form.date + '_' + #form.rangeType")
     public PageResult<NewsVo> listNews(NewsRequestForm form) {
+        System.out.println("=====");
         LocalDate oneWeekAgo = LocalDate.now().minusDays(1);
 
         String selectDay = DateUtils.getCurrentDay(form.getDate());

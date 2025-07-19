@@ -4,6 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.annotation.MapperScans;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         @MapperScan("com.nntk.m2s.mp.generate.mapper")
 })
 @EnableScheduling
+@EnableCaching
 public class M2sServerApplication {
 
     public static void main(String[] args) {

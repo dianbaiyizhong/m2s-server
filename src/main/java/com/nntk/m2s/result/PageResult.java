@@ -3,15 +3,17 @@ package com.nntk.m2s.result;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * 此类专门为分页数据服务
+ *
  * @param <T>
  */
 @Data
 @NoArgsConstructor
-public class PageResult<T> {
+public class PageResult<T> implements Serializable {
     private long total;
 
 

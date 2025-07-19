@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TCountry;
  * </p>
  *
  * @author nntk
- * @since 2025-07-16
+ * @since 2025-07-19
  */
 public interface TCountryMapper extends BaseMapper<TCountry> {
 

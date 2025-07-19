@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-07-16
+ * @since 2025-07-19
  */
 @TableName("t_news")
 public class TNews implements Serializable {
@@ -23,15 +23,23 @@ public class TNews implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    private Integer comboId;
+
     private String title;
+
+    private Boolean mapNews;
 
     private Integer areaLevel;
 
-    private LocalDateTime createTime;
-
     private Integer areaId;
 
+    private LocalDateTime createTime;
+
     private LocalDateTime newsTime;
+
+    private String locationSubtitle;
+
+    private String videoUrl;
 
     private String thumbImg;
 
@@ -40,14 +48,6 @@ public class TNews implements Serializable {
     private String sourceName;
 
     private String newsContext;
-
-    private Boolean mapNews;
-
-    private String videoUrl;
-
-    private Integer comboId;
-
-    private String locationSubtitle;
 
     private String images;
     
@@ -59,12 +59,28 @@ public class TNews implements Serializable {
           this.id = id;
       }
     
+    public Integer getComboId() {
+        return comboId;
+    }
+
+      public void setComboId(Integer comboId) {
+          this.comboId = comboId;
+      }
+    
     public String getTitle() {
         return title;
     }
 
       public void setTitle(String title) {
           this.title = title;
+      }
+    
+    public Boolean getMapNews() {
+        return mapNews;
+    }
+
+      public void setMapNews(Boolean mapNews) {
+          this.mapNews = mapNews;
       }
     
     public Integer getAreaLevel() {
@@ -75,14 +91,6 @@ public class TNews implements Serializable {
           this.areaLevel = areaLevel;
       }
     
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-      public void setCreateTime(LocalDateTime createTime) {
-          this.createTime = createTime;
-      }
-    
     public Integer getAreaId() {
         return areaId;
     }
@@ -91,12 +99,36 @@ public class TNews implements Serializable {
           this.areaId = areaId;
       }
     
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+      public void setCreateTime(LocalDateTime createTime) {
+          this.createTime = createTime;
+      }
+    
     public LocalDateTime getNewsTime() {
         return newsTime;
     }
 
       public void setNewsTime(LocalDateTime newsTime) {
           this.newsTime = newsTime;
+      }
+    
+    public String getLocationSubtitle() {
+        return locationSubtitle;
+    }
+
+      public void setLocationSubtitle(String locationSubtitle) {
+          this.locationSubtitle = locationSubtitle;
+      }
+    
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+      public void setVideoUrl(String videoUrl) {
+          this.videoUrl = videoUrl;
       }
     
     public String getThumbImg() {
@@ -131,38 +163,6 @@ public class TNews implements Serializable {
           this.newsContext = newsContext;
       }
     
-    public Boolean getMapNews() {
-        return mapNews;
-    }
-
-      public void setMapNews(Boolean mapNews) {
-          this.mapNews = mapNews;
-      }
-    
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-      public void setVideoUrl(String videoUrl) {
-          this.videoUrl = videoUrl;
-      }
-    
-    public Integer getComboId() {
-        return comboId;
-    }
-
-      public void setComboId(Integer comboId) {
-          this.comboId = comboId;
-      }
-    
-    public String getLocationSubtitle() {
-        return locationSubtitle;
-    }
-
-      public void setLocationSubtitle(String locationSubtitle) {
-          this.locationSubtitle = locationSubtitle;
-      }
-    
     public String getImages() {
         return images;
     }
@@ -175,19 +175,19 @@ public class TNews implements Serializable {
     public String toString() {
         return "TNews{" +
                   "id = " + id +
+                      ", comboId = " + comboId +
                       ", title = " + title +
+                      ", mapNews = " + mapNews +
                       ", areaLevel = " + areaLevel +
-                      ", createTime = " + createTime +
                       ", areaId = " + areaId +
+                      ", createTime = " + createTime +
                       ", newsTime = " + newsTime +
+                      ", locationSubtitle = " + locationSubtitle +
+                      ", videoUrl = " + videoUrl +
                       ", thumbImg = " + thumbImg +
                       ", sourceUrl = " + sourceUrl +
                       ", sourceName = " + sourceName +
                       ", newsContext = " + newsContext +
-                      ", mapNews = " + mapNews +
-                      ", videoUrl = " + videoUrl +
-                      ", comboId = " + comboId +
-                      ", locationSubtitle = " + locationSubtitle +
                       ", images = " + images +
                   "}";
     }

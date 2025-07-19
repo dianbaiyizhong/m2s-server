@@ -1,8 +1,6 @@
 spring:
-#  elasticsearch:
-#    uris: https://localhost:9200
-#    username: elastic
-#    password: kDw0IEaQm7_bs4aSfPq3
+  cache:
+    cache-names: news
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root

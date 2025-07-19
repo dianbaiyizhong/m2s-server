@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -12,7 +13,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author nntk
- * @since 2025-07-16
+ * @since 2025-07-19
  */
 @TableName("t_city")
 public class TCity implements Serializable {
@@ -41,6 +42,8 @@ public class TCity implements Serializable {
     private String intro2;
 
     private String intro;
+
+    private LocalDateTime updateTime;
     
     public Integer getId() {
         return id;
@@ -129,6 +132,14 @@ public class TCity implements Serializable {
       public void setIntro(String intro) {
           this.intro = intro;
       }
+    
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+      public void setUpdateTime(LocalDateTime updateTime) {
+          this.updateTime = updateTime;
+      }
 
     @Override
     public String toString() {
@@ -144,6 +155,7 @@ public class TCity implements Serializable {
                       ", imageUrl = " + imageUrl +
                       ", intro2 = " + intro2 +
                       ", intro = " + intro +
+                      ", updateTime = " + updateTime +
                   "}";
     }
 }

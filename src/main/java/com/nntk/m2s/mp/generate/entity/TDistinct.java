@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -12,7 +13,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author nntk
- * @since 2025-07-16
+ * @since 2025-07-19
  */
 @TableName("t_distinct")
 public class TDistinct implements Serializable {
@@ -31,6 +32,8 @@ public class TDistinct implements Serializable {
     private String adCode;
 
     private String cityCode;
+
+    private LocalDateTime updateTime;
     
     public Integer getId() {
         return id;
@@ -79,6 +82,14 @@ public class TDistinct implements Serializable {
       public void setCityCode(String cityCode) {
           this.cityCode = cityCode;
       }
+    
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+      public void setUpdateTime(LocalDateTime updateTime) {
+          this.updateTime = updateTime;
+      }
 
     @Override
     public String toString() {
@@ -89,6 +100,7 @@ public class TDistinct implements Serializable {
                       ", lng = " + lng +
                       ", adCode = " + adCode +
                       ", cityCode = " + cityCode +
+                      ", updateTime = " + updateTime +
                   "}";
     }
 }
