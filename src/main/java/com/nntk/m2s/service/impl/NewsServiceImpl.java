@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.toolkit.JoinWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.google.common.collect.Lists;
+import com.nntk.m2s.config.TimerCondition;
 import com.nntk.m2s.constant.AreaLevelType;
 import com.nntk.m2s.exception.NoDataException;
 import com.nntk.m2s.mp.custom.mapper.TMapNewsPreviewJoinMapper;
@@ -202,6 +203,7 @@ public class NewsServiceImpl implements INewsService {
                 newsVo.setIntro(country.getIntro());
                 newsVo.setName(country.getName());
                 newsVo.setCode(country.getCode());
+                newsVo.setAreaImage(country.getImageUrl());
             }
         }
         if (!provinceIds.isEmpty()) {
@@ -223,6 +225,8 @@ public class NewsServiceImpl implements INewsService {
                 newsVo.setNcpSlogan(province.getNcpSlogan());
                 newsVo.setProvinceShortHand(province.getShorthand());
                 newsVo.setThemeColor(province.getBgColor());
+                newsVo.setAreaImage(province.getImageUrl());
+
             }
         }
         if (!cityIds.isEmpty()) {
@@ -242,6 +246,7 @@ public class NewsServiceImpl implements INewsService {
                 newsVo.setCode(city.getAreaCode());
                 newsVo.setProvinceShortHand(city.getProvinceShortHand());
                 newsVo.setLicensePlateNum(city.getLicensePlateNum());
+                newsVo.setAreaImage(city.getImageUrl());
             }
 
         }

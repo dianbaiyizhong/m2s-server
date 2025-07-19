@@ -2,6 +2,9 @@ package com.nntk.m2s;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -9,9 +12,11 @@ import com.google.common.collect.Lists;
 import com.nntk.m2s.mp.generate.entity.TCity;
 import com.nntk.m2s.mp.generate.entity.TCountry;
 import com.nntk.m2s.mp.generate.entity.TDistinct;
+import com.nntk.m2s.mp.generate.entity.TProvince;
 import com.nntk.m2s.mp.generate.mapper.TCityMapper;
 import com.nntk.m2s.mp.generate.mapper.TCountryMapper;
 import com.nntk.m2s.mp.generate.mapper.TDistinctMapper;
+import com.nntk.m2s.mp.generate.mapper.TProvinceMapper;
 import com.nntk.m2s.service.IAiService;
 import com.nntk.m2s.service.INewsService;
 import com.nntk.m2s.service.ISpiderService;
@@ -69,6 +74,10 @@ public class ServiceTest {
 
     @Autowired
     private TCountryMapper countryMapper;
+
+
+    @Autowired
+    private TProvinceMapper provinceMapper;
 
 
     @Test
