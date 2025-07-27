@@ -18,6 +18,7 @@ import com.nntk.m2s.utils.MarkdownUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,12 @@ public class AiServiceImpl implements IAiService {
 
     private final ChatClient chatClient;
 
+
+    @Value("${bailian.apiKey}")
+    private String bailianApiKey;
+
+    @Value("${bailian.appId}")
+    private String bailianAppId;
 
     @Resource
     private TAiCacheMapper aiCacheMapper;
@@ -69,8 +76,8 @@ public class AiServiceImpl implements IAiService {
         }
         ApplicationParam param = ApplicationParam.builder()
                 // 若没有配置环境变量，可用百炼API Key将下行替换为：.apiKey("sk-xxx")。但不建议在生产环境中直接将API Key硬编码到代码中，以减少API Key泄露风险。
-                .apiKey("sk-cb80f6a73a5f4ffb80b12f3260eb7217")
-                .appId("3612d3d43acf4b77b695c0859d7a1da9")
+                .apiKey(bailianApiKey)
+                .appId(bailianAppId)
                 .enableWebSearch(true)
                 .prompt(prompt)
                 .build();

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-//@Conditional(TimerCondition.class)
+@Conditional(TimerCondition.class)
 public class Timer {
     @Autowired
     private ISpiderService spiderService;

@@ -69,6 +69,7 @@ public class NewsServiceImpl implements INewsService {
 
 
         MPJLambdaWrapper<TMapNewsPreview> wrapper = JoinWrappers.lambda(TMapNewsPreview.class)
+                .eq(TMapNewsPreview::getEnable, true)
                 .selectAll(TMapNewsPreview.class)
                 .selectAll(TNews.class)
                 .selectAs(TNews::getTitle, MapNewsCoverDTO::getNewsTitle)
@@ -87,17 +88,17 @@ public class NewsServiceImpl implements INewsService {
         String lastDay = DateUtils.getLastDay(form.getDate());
 
         List<TNews> mapNewsDBList = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
-                        .isNotNull(TNews::getAreaLevel)
-                        .eq(TNews::getMapNews, false).ne(TNews::getAreaId, 0)
-                        .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 1), wrapper -> wrapper
-                                .or().eq(TNews::getAreaLevel, AreaLevelType.PROVINCE.getCode())
-                                .or().eq(TNews::getAreaLevel, AreaLevelType.CITY.getCode())
-                        )
-                        .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 2), wrapper -> wrapper
-                                .or().eq(TNews::getAreaLevel, AreaLevelType.COUNTRY.getCode())
-                        )
-                        .between(TNews::getFormattedNewsDate, lastDay, selectDay)
-                        .orderByDesc(TNews::getNewsTime)
+                .isNotNull(TNews::getAreaLevel)
+                .eq(TNews::getMapNews, false).ne(TNews::getAreaId, 0)
+                .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 1), wrapper -> wrapper
+                        .or().eq(TNews::getAreaLevel, AreaLevelType.PROVINCE.getCode())
+                        .or().eq(TNews::getAreaLevel, AreaLevelType.CITY.getCode())
+                )
+                .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 2), wrapper -> wrapper
+                        .or().eq(TNews::getAreaLevel, AreaLevelType.COUNTRY.getCode())
+                )
+                .between(TNews::getFormattedNewsDate, lastDay, selectDay)
+                .orderByDesc(TNews::getNewsTime)
         );
         return wrapperMapNews(mapNewsDBList);
     }

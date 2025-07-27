@@ -28,6 +28,8 @@ public class TMapNewsPreview implements Serializable {
     private String title;
 
     private Integer coverId;
+
+    private Byte enable;
     
     public Integer getId() {
         return id;
@@ -60,6 +62,14 @@ public class TMapNewsPreview implements Serializable {
       public void setCoverId(Integer coverId) {
           this.coverId = coverId;
       }
+    
+    public Byte getEnable() {
+        return enable;
+    }
+
+      public void setEnable(Byte enable) {
+          this.enable = enable;
+      }
 
     @Override
     public String toString() {
@@ -68,6 +78,7 @@ public class TMapNewsPreview implements Serializable {
                       ", createTime = " + createTime +
                       ", title = " + title +
                       ", coverId = " + coverId +
+                      ", enable = " + enable +
                   "}";
     }
 }

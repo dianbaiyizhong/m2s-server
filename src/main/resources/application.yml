@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   cache:
     cache-names: news
   datasource:
@@ -21,6 +25,18 @@ spring:
 logging:
   level:
     tracer: trace
+
+bailian:
+  apiKey: sk-cb80f6a73a5f4ffb80b12f3260eb7217
+  appId: 3612d3d43acf4b77b695c0859d7a1da9
+
+bos:
+  ak: 9c0ec7a5324645e89c98e8640536c1e6
+  sk: 7832d71f382441e2afe8eccec6215e07
+  endpoint: gz.bcebos.com
+  bucketName: map-question
+
+
 
 # mybatis日志打印
 #mybatis-plus:
