@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -52,6 +53,8 @@ public class TNews implements Serializable {
     private String images;
 
     private Integer contentErrorNum;
+
+    private LocalDate formattedNewsDate;
     
     public Integer getId() {
         return id;
@@ -180,6 +183,14 @@ public class TNews implements Serializable {
       public void setContentErrorNum(Integer contentErrorNum) {
           this.contentErrorNum = contentErrorNum;
       }
+    
+    public LocalDate getFormattedNewsDate() {
+        return formattedNewsDate;
+    }
+
+      public void setFormattedNewsDate(LocalDate formattedNewsDate) {
+          this.formattedNewsDate = formattedNewsDate;
+      }
 
     @Override
     public String toString() {
@@ -200,6 +211,7 @@ public class TNews implements Serializable {
                       ", newsContent = " + newsContent +
                       ", images = " + images +
                       ", contentErrorNum = " + contentErrorNum +
+                      ", formattedNewsDate = " + formattedNewsDate +
                   "}";
     }
 }

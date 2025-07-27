@@ -96,9 +96,7 @@ public class NewsServiceImpl implements INewsService {
                         .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 2), wrapper -> wrapper
                                 .or().eq(TNews::getAreaLevel, AreaLevelType.COUNTRY.getCode())
                         )
-//                .apply("date_format (news_time,'%Y-%m-%d') >= '" + oneWeekAgo + "'")
-                        .apply("date_format (news_time,'%Y-%m-%d') <=" + "'" + selectDay + "'")
-                        .apply("date_format (news_time,'%Y-%m-%d') >= '" + lastDay + "'")
+                        .between(TNews::getFormattedNewsDate, lastDay, selectDay)
                         .orderByDesc(TNews::getNewsTime)
         );
         return wrapperMapNews(mapNewsDBList);

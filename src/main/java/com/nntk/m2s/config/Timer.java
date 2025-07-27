@@ -19,7 +19,7 @@ public class Timer {
     private CacheManager cacheManager;
 
 
-    @Scheduled(cron = "0 30 * * * *")
+    @Scheduled(cron = "0 26 * * * *")
     public void scanNews() {
         try {
             spiderService.spiderI18nNews();

@@ -6,6 +6,7 @@ import com.alibaba.dashscope.app.ApplicationResult;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.google.common.collect.Lists;
+import com.nntk.m2s.constant.CommonConst;
 import com.nntk.m2s.mp.generate.mapper.TCityMapper;
 import com.nntk.m2s.mp.generate.mapper.TCountryMapper;
 import com.nntk.m2s.mp.generate.mapper.TNewsMapper;
@@ -65,26 +66,15 @@ class AINews {
 
     @Test
     void testBailian() throws NoApiKeyException, InputRequiredException {
+
         String prompt = """
-                16岁女子飞机上分娩疑携带传染病？急盼公开通报回应网络传言。
-                以上是一个网络新闻标题，请联网搜索，返回一个json对象，包含type，area两个属性;
-                type：如果这是一条地方新闻返回1，否则返回0；如果等于0，就不需要area，返回空即可;
-                如果这是一条国际新闻，则判断是否与与特定的国家关联上。如果是，也可以返回type为1
-                area：发生地（xxx国，xxx省,xxx市）如果具体不到城市，那就返回省份;如果是外国的，那就返回国名例如xxx国
-                                
-                """;
-        ApplicationParam param = ApplicationParam.builder()
-                // 若没有配置环境变量，可用百炼API Key将下行替换为：.apiKey("sk-xxx")。但不建议在生产环境中直接将API Key硬编码到代码中，以减少API Key泄露风险。
-                .apiKey("sk-cb80f6a73a5f4ffb80b12f3260eb7217")
-                .appId("3612d3d43acf4b77b695c0859d7a1da9")
-                .enableWebSearch(true)
-                .prompt(prompt)
-                .build();
+                %s。这是一个新闻，请返回新闻概要，要求markdown格式，不需要图片内容。如果你暂时找不到相关新闻，可以返回“news not found”关键字，让我方便识别"""
+                .formatted("江苏率先打出高品质住房改革政策组合拳", CommonConst.NEWS_NOT_FOUND);
 
-        Application application = new Application();
-        ApplicationResult result = application.call(param);
+        System.out.println(prompt);
 
-        System.out.println(result.getOutput().getText());
+        String bailianResponse = aiService.getBailianResponse(prompt);
+        System.out.println(bailianResponse);
     }
 
 

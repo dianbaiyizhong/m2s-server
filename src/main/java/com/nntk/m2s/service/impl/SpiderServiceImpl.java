@@ -364,8 +364,8 @@ public class SpiderServiceImpl implements ISpiderService {
     }
 
     private String buildNewsContentPrompt(String title) {
-        String prompt = title + """
-                %s。返回markdown格式那种比较详细的新闻概要，不需要图片内容，如果你暂时找不到相关新闻，可以返回“%s”关键字，让我方便识别
+        String prompt = """
+                %s。这是一个新闻，请返回那种比较详细的新闻概要，要求markdown格式，不需要图片内容。如果你暂时找不到相关新闻，可以返回“%s”关键字，让我方便识别
                 """.formatted(title, CommonConst.NEWS_NOT_FOUND);
         return prompt;
     }
@@ -438,20 +438,22 @@ public class SpiderServiceImpl implements ISpiderService {
     public void reSpiderContent() {
 
         List<TNews> tNews = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
-                .le(TNews::getContentErrorNum, 3)
+                .le(TNews::getContentErrorNum, 10)
                 .ne(TNews::getContentErrorNum, -1)
         );
         for (int i = 0; i < tNews.size(); i++) {
             TNews item = tNews.get(i);
+            TNews updateItem = new TNews();
+            updateItem.setId(item.getId());
             String prompt = buildNewsContentPrompt(item.getTitle());
             String content = aiService.getBailianResponse(prompt);
             if (content.contains(CommonConst.NEWS_NOT_FOUND)) {
-                item.setContentErrorNum(item.getContentErrorNum() + 1);
+                updateItem.setContentErrorNum(item.getContentErrorNum() + 1);
             } else {
-                item.setContentErrorNum(-1);
-                item.setNewsContent(content);
+                updateItem.setContentErrorNum(-1);
+                updateItem.setNewsContent(content);
             }
-            newsMapper.updateById(item);
+            newsMapper.updateById(updateItem);
         }
     }
 
