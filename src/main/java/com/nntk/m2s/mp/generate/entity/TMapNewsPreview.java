@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-07-19
+ * @since 2025-07-27
  */
 @TableName("t_map_news_preview")
 public class TMapNewsPreview implements Serializable {

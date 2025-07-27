@@ -8,6 +8,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
+import com.nntk.m2s.constant.CommonConst;
 import com.nntk.m2s.mp.generate.entity.*;
 import com.nntk.m2s.mp.generate.mapper.*;
 import com.nntk.m2s.pojo.bo.MediaImage;
@@ -176,9 +177,15 @@ public class SpiderServiceImpl implements ISpiderService {
             log.warn("由于新闻没有ai正文内容，判断新闻质量不高，未入库:{}", newsEntity.getTitle());
             return;
         }
+
+
         TNews news = new TNews();
         news.setTitle(newsEntity.getTitle());
-        news.setNewsContext(newsEntity.getContent());
+        news.setNewsContent(newsEntity.getContent());
+        if (StringUtils.contains(newsEntity.getContent(), CommonConst.NEWS_NOT_FOUND)) {
+            log.warn("由于ai判断新闻内容无法找到，未入库:{}", newsEntity.getTitle());
+            news.setContentErrorNum(1);
+        }
         news.setNewsTime(newsEntity.getNewsTime());
         news.setCreateTime(LocalDateTime.now());
         news.setAreaLevel(newsEntity.getAreaLevel());
@@ -250,6 +257,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
     }
 
+
     private static LocalDateTime getDateTimeOfTimestamp(long timestamp) {
         Instant instant = Instant.ofEpochMilli(timestamp);
         ZoneId zone = ZoneId.systemDefault();
@@ -299,13 +307,13 @@ public class SpiderServiceImpl implements ISpiderService {
 
         String title = sinaNewsBo.getTitle();
 
-        String prompt = title + """
-                。
+        String prompt = """
+                %s。
                 以上是一个网络新闻标题，请联网搜索，返回一个json对象，包含type，area两个属性;
                 type：如果这是一条地方新闻返回1，否则返回0；如果等于0，就不需要area，返回空即可;
                 如果这是一条国际新闻，则判断是否与与特定的国家关联上。如果是，也可以返回type为1
                 area：发生地（xxx国，xxx省,xxx市）如果具体不到城市，那就返回省份;如果是外国的，那就返回国名例如xxx国
-                """;
+                """.formatted(title);
         String deepSeekResponse = aiService.getBailianResponse(prompt);
 
         JSONObject aiBody = JSON.parseObject(deepSeekResponse);
@@ -343,10 +351,8 @@ public class SpiderServiceImpl implements ISpiderService {
             }
 
             if (sinaNewsBo.getAreaLevel() != 0) {
-                String prompt2 = title + """
-                        。返回markdown格式那种比较详细的新闻概要，不需要图片内容。
-                        """;
-                String content = aiService.getBailianResponse(prompt2);
+
+                String content = aiService.getBailianResponse(buildNewsContentPrompt(title));
 
                 sinaNewsBo.setContent(content);
             }
@@ -355,6 +361,13 @@ public class SpiderServiceImpl implements ISpiderService {
         }
 
 
+    }
+
+    private String buildNewsContentPrompt(String title) {
+        String prompt = title + """
+                %s。返回markdown格式那种比较详细的新闻概要，不需要图片内容，如果你暂时找不到相关新闻，可以返回“%s”关键字，让我方便识别
+                """.formatted(title, CommonConst.NEWS_NOT_FOUND);
+        return prompt;
     }
 
     private void matchText(SinaNewsBo sinaNewsBo) {
@@ -418,6 +431,28 @@ public class SpiderServiceImpl implements ISpiderService {
             }
         }
         return null;
+    }
+
+
+    @Override
+    public void reSpiderContent() {
+
+        List<TNews> tNews = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
+                .le(TNews::getContentErrorNum, 3)
+                .ne(TNews::getContentErrorNum, -1)
+        );
+        for (int i = 0; i < tNews.size(); i++) {
+            TNews item = tNews.get(i);
+            String prompt = buildNewsContentPrompt(item.getTitle());
+            String content = aiService.getBailianResponse(prompt);
+            if (content.contains(CommonConst.NEWS_NOT_FOUND)) {
+                item.setContentErrorNum(item.getContentErrorNum() + 1);
+            } else {
+                item.setContentErrorNum(-1);
+                item.setNewsContent(content);
+            }
+            newsMapper.updateById(item);
+        }
     }
 
 }

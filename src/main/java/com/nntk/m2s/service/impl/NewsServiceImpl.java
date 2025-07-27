@@ -164,7 +164,7 @@ public class NewsServiceImpl implements INewsService {
                             .toEpochMilli();
                     dto.setArticleTime(timestampUtc);
                     dto.setThumbImg(o.getThumbImg());
-                    dto.setContext(o.getNewsContext());
+                    dto.setContent(o.getNewsContent());
                     dto.setSourceName(o.getSourceName());
                     dto.setSourceUrl(o.getSourceUrl());
                     return dto;

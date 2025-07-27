@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-07-19
+ * @since 2025-07-27
  */
 @TableName("t_news")
 public class TNews implements Serializable {
@@ -47,9 +47,11 @@ public class TNews implements Serializable {
 
     private String sourceName;
 
-    private String newsContext;
+    private String newsContent;
 
     private String images;
+
+    private Integer contentErrorNum;
     
     public Integer getId() {
         return id;
@@ -155,12 +157,12 @@ public class TNews implements Serializable {
           this.sourceName = sourceName;
       }
     
-    public String getNewsContext() {
-        return newsContext;
+    public String getNewsContent() {
+        return newsContent;
     }
 
-      public void setNewsContext(String newsContext) {
-          this.newsContext = newsContext;
+      public void setNewsContent(String newsContent) {
+          this.newsContent = newsContent;
       }
     
     public String getImages() {
@@ -169,6 +171,14 @@ public class TNews implements Serializable {
 
       public void setImages(String images) {
           this.images = images;
+      }
+    
+    public Integer getContentErrorNum() {
+        return contentErrorNum;
+    }
+
+      public void setContentErrorNum(Integer contentErrorNum) {
+          this.contentErrorNum = contentErrorNum;
       }
 
     @Override
@@ -187,8 +197,9 @@ public class TNews implements Serializable {
                       ", thumbImg = " + thumbImg +
                       ", sourceUrl = " + sourceUrl +
                       ", sourceName = " + sourceName +
-                      ", newsContext = " + newsContext +
+                      ", newsContent = " + newsContent +
                       ", images = " + images +
+                      ", contentErrorNum = " + contentErrorNum +
                   "}";
     }
 }

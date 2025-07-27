@@ -56,7 +56,8 @@ public class ServiceTest {
 
     @Test
     public void spider() {
-        ISpiderService.spiderI18nNews();
+//        ISpiderService.spiderI18nNews();
+        ISpiderService.reSpiderContent();
 
     }
 
@@ -112,9 +113,31 @@ public class ServiceTest {
     }
 
     @Test
+    public void updateProvinceInfo() throws IOException {
+
+        List<TProvince> tCities = provinceMapper.selectList(null);
+
+
+        for (int i = 0; i < tCities.size(); i++) {
+            TProvince tCity = tCities.get(i);
+            String prompt = tCity.getName() + """
+                    。请把我输出这个地方的经纬度，输出json格式，一定要精确,属性分别为lat，lng.
+                    """;
+            System.out.println(tCity.getName());
+            String bailianResponse = aiService.getBailianResponse(prompt);
+            JSONObject jsonObject = JSON.parseObject(bailianResponse);
+            System.out.println(jsonObject);
+            System.out.println(jsonObject.getDouble("lat"));
+            tCity.setLat(jsonObject.getDouble("lat"));
+            tCity.setLng(jsonObject.getDouble("lng"));
+//            provinceMapper.updateById(tCity);
+        }
+    }
+
+    @Test
     public void updateCityInfo() throws IOException {
 
-        List<TCity> tCities = cityMapper.selectList(null);
+        List<TCity> tCities = cityMapper.selectList(new QueryWrapper<TCity>().lambda().eq(TCity::getName, "福州市"));
 
 
         for (int i = 0; i < tCities.size(); i++) {
@@ -124,6 +147,8 @@ public class ServiceTest {
                     """;
             String bailianResponse = aiService.getBailianResponse(prompt);
             JSONObject jsonObject = JSON.parseObject(bailianResponse);
+            System.out.println(jsonObject);
+            System.out.println(jsonObject.getDouble("lat"));
             tCity.setLat(jsonObject.getDouble("lat"));
             tCity.setLng(jsonObject.getDouble("lng"));
             cityMapper.updateById(tCity);

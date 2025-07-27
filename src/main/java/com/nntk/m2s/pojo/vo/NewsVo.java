@@ -48,7 +48,7 @@ public class NewsVo implements Serializable {
     private String videoUrl;
 
 
-    private String context;
+    private String content;
 
 
     private String areaImage;

@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TDistinct;
  * </p>
  *
  * @author nntk
- * @since 2025-07-19
+ * @since 2025-07-27
  */
 public interface TDistinctMapper extends BaseMapper<TDistinct> {
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-@Conditional(TimerCondition.class)
+//@Conditional(TimerCondition.class)
 public class Timer {
     @Autowired
     private ISpiderService spiderService;
@@ -19,13 +19,20 @@ public class Timer {
     private CacheManager cacheManager;
 
 
-    @Scheduled(cron = "0 45 * * * *")
+    @Scheduled(cron = "0 30 * * * *")
     public void scanNews() {
-        spiderService.spiderI18nNews();
-        spiderService.spiderChinaNews();
-        log.info("采集新闻数据成功");
-        // 清理缓存
-        cacheManager.getCache("news").clear();
+        try {
+            spiderService.spiderI18nNews();
+            spiderService.spiderChinaNews();
+            spiderService.reSpiderContent();
+            log.info("采集新闻数据成功");
+        } catch (Exception e) {
+            log.error("定时任务执行异常", e);
+        } finally {
+            // 清理缓存
+            cacheManager.getCache("news").clear();
+        }
+
 
     }
 

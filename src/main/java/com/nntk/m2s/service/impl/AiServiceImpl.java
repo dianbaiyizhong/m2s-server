@@ -10,6 +10,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.nntk.m2s.constant.CommonConst;
 import com.nntk.m2s.mp.generate.entity.TAiCache;
 import com.nntk.m2s.mp.generate.mapper.TAiCacheMapper;
 import com.nntk.m2s.service.IAiService;
@@ -82,6 +83,9 @@ public class AiServiceImpl implements IAiService {
         } catch (Exception e) {
             log.error("百炼报错:{}", e.getMessage());
             content = e.getMessage();
+        }
+        if (content.contains(CommonConst.NEWS_NOT_FOUND)) {
+            return CommonConst.NEWS_NOT_FOUND;
         }
         aiCache = new TAiCache();
         aiCache.setPromptMd5(MD5.create().digestHex(prompt));
