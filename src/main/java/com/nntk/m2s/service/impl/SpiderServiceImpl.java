@@ -173,19 +173,9 @@ public class SpiderServiceImpl implements ISpiderService {
             return;
         }
 
-        if (StringUtils.isEmpty(newsEntity.getContent())) {
-            log.warn("由于新闻没有ai正文内容，判断新闻质量不高，未入库:{}", newsEntity.getTitle());
-            return;
-        }
-
-
         TNews news = new TNews();
         news.setTitle(newsEntity.getTitle());
-        news.setNewsContent(newsEntity.getContent());
-        if (StringUtils.contains(newsEntity.getContent(), CommonConst.NEWS_NOT_FOUND)) {
-            log.warn("由于ai判断新闻内容无法找到，未入库:{}", newsEntity.getTitle());
-            news.setContentErrorNum(1);
-        }
+        news.setNewsContent(newsEntity.getRawContent());
         news.setNewsTime(newsEntity.getNewsTime());
         news.setCreateTime(LocalDateTime.now());
         news.setAreaLevel(newsEntity.getAreaLevel());
@@ -302,8 +292,8 @@ public class SpiderServiceImpl implements ISpiderService {
         }
 
         // 解析原文章
-        String text = htmlBody.select(".article").text();
-        sinaNewsBo.setRawContent(text);
+        String text = htmlBody.select(".article").html();
+        sinaNewsBo.setRawContent(text.replaceAll("src=\"//k.sinaimg.cn","src=\"https://k.sinaimg.cn"));
 
         String title = sinaNewsBo.getTitle();
 
@@ -351,10 +341,7 @@ public class SpiderServiceImpl implements ISpiderService {
             }
 
             if (sinaNewsBo.getAreaLevel() != 0) {
-
-                String content = aiService.getBailianResponse(buildNewsContentPrompt(title));
-
-                sinaNewsBo.setContent(content);
+                sinaNewsBo.setContent(CommonConst.NEWS_NOT_FOUND);
             }
 
 
@@ -433,28 +420,5 @@ public class SpiderServiceImpl implements ISpiderService {
         return null;
     }
 
-
-    @Override
-    public void reSpiderContent() {
-
-        List<TNews> tNews = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
-                .le(TNews::getContentErrorNum, 10)
-                .ne(TNews::getContentErrorNum, -1)
-        );
-        for (int i = 0; i < tNews.size(); i++) {
-            TNews item = tNews.get(i);
-            TNews updateItem = new TNews();
-            updateItem.setId(item.getId());
-            String prompt = buildNewsContentPrompt(item.getTitle());
-            String content = aiService.getBailianResponse(prompt);
-            if (content.contains(CommonConst.NEWS_NOT_FOUND)) {
-                updateItem.setContentErrorNum(item.getContentErrorNum() + 1);
-            } else {
-                updateItem.setContentErrorNum(-1);
-                updateItem.setNewsContent(content);
-            }
-            newsMapper.updateById(updateItem);
-        }
-    }
 
 }

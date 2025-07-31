@@ -113,7 +113,6 @@ public class ServiceTest {
     @Test
     public void spider() {
 //        ISpiderService.spiderI18nNews();
-        ISpiderService.reSpiderContent();
 
     }
 

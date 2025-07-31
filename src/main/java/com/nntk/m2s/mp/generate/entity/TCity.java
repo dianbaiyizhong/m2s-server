@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-07-27
+ * @since 2025-07-31
  */
 @TableName("t_city")
 public class TCity implements Serializable {

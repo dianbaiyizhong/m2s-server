@@ -52,4 +52,6 @@ public class NewsVo implements Serializable {
 
 
     private String areaImage;
+
+    private Integer contentErrorNum;
 }

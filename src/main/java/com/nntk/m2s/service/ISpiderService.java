@@ -7,7 +7,6 @@ public interface ISpiderService {
     public void spiderI18nNews();
 
 
-    public void reSpiderContent();
 
 
 }

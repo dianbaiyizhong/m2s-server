@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TNews;
  * </p>
  *
  * @author nntk
- * @since 2025-07-27
+ * @since 2025-07-31
  */
 public interface TNewsMapper extends BaseMapper<TNews> {
 

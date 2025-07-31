@@ -37,6 +37,8 @@ bos:
   bucketName: map-question
 
 
+volcengine:
+  apiKey: 1738aee7-8537-4266-9c79-c76afe147097
 
 # mybatis日志打印
 #mybatis-plus:

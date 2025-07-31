@@ -19,12 +19,11 @@ public class Timer {
     private CacheManager cacheManager;
 
 
-    @Scheduled(cron = "0 26 * * * *")
+    @Scheduled(cron = "0 30 * * * *")
     public void scanNews() {
         try {
             spiderService.spiderI18nNews();
             spiderService.spiderChinaNews();
-            spiderService.reSpiderContent();
             log.info("采集新闻数据成功");
         } catch (Exception e) {
             log.error("定时任务执行异常", e);
@@ -33,7 +32,7 @@ public class Timer {
             cacheManager.getCache("news").clear();
         }
 
-
     }
+
 
 }

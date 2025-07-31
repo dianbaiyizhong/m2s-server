@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-07-27
+ * @since 2025-07-31
  */
 @TableName("t_news")
 public class TNews implements Serializable {
@@ -51,8 +51,6 @@ public class TNews implements Serializable {
     private String newsContent;
 
     private String images;
-
-    private Integer contentErrorNum;
 
     private LocalDate formattedNewsDate;
     
@@ -176,14 +174,6 @@ public class TNews implements Serializable {
           this.images = images;
       }
     
-    public Integer getContentErrorNum() {
-        return contentErrorNum;
-    }
-
-      public void setContentErrorNum(Integer contentErrorNum) {
-          this.contentErrorNum = contentErrorNum;
-      }
-    
     public LocalDate getFormattedNewsDate() {
         return formattedNewsDate;
     }
@@ -210,7 +200,6 @@ public class TNews implements Serializable {
                       ", sourceName = " + sourceName +
                       ", newsContent = " + newsContent +
                       ", images = " + images +
-                      ", contentErrorNum = " + contentErrorNum +
                       ", formattedNewsDate = " + formattedNewsDate +
                   "}";
     }
