@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TProvince;
  * </p>
  *
  * @author nntk
- * @since 2025-07-31
+ * @since 2025-08-10
  */
 public interface TProvinceMapper extends BaseMapper<TProvince> {
 

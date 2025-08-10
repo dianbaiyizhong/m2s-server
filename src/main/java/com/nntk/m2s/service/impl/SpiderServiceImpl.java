@@ -292,6 +292,7 @@ public class SpiderServiceImpl implements ISpiderService {
         }
 
         // 解析原文章
+        htmlBody.select("script").remove();
         String text = htmlBody.select(".article").html();
         sinaNewsBo.setRawContent(text.replaceAll("src=\"//k.sinaimg.cn","src=\"https://k.sinaimg.cn"));
 

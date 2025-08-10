@@ -12,7 +12,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author nntk
- * @since 2025-07-31
+ * @since 2025-08-10
  */
 @TableName("t_country")
 public class TCountry implements Serializable {

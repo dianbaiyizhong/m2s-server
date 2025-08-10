@@ -64,9 +64,7 @@ public class AiServiceImpl implements IAiService {
     }
 
     @Override
-    public String getBailianResponse(String prompt) {
-
-
+    public String getBailianResponse(String prompt, String appId) {
         TAiCache aiCache = aiCacheMapper.selectOne(new QueryWrapper<TAiCache>()
                 .lambda()
                 .eq(TAiCache::getPromptMd5, MD5.create().digestHex(prompt))
@@ -77,7 +75,7 @@ public class AiServiceImpl implements IAiService {
         ApplicationParam param = ApplicationParam.builder()
                 // 若没有配置环境变量，可用百炼API Key将下行替换为：.apiKey("sk-xxx")。但不建议在生产环境中直接将API Key硬编码到代码中，以减少API Key泄露风险。
                 .apiKey(bailianApiKey)
-                .appId(bailianAppId)
+                .appId(appId)
                 .enableWebSearch(true)
                 .prompt(prompt)
                 .build();
@@ -101,6 +99,14 @@ public class AiServiceImpl implements IAiService {
         aiCache.setCreateTime(LocalDateTime.now());
         aiCacheMapper.insert(aiCache);
         return MarkdownUtils.getJson(content);
+    }
+
+    @Override
+    public String getBailianResponse(String prompt) {
+
+
+        return getBailianResponse(prompt, bailianAppId);
+
     }
 
     @Override

@@ -6,6 +6,8 @@ public interface IAiService {
 
     public String getDeepSeekResponse(String prompt);
 
+    public String getBailianResponse(String prompt, String appId);
+
     public String getBailianResponse(String prompt);
 
     public String getRawDeepSeekResponse(String prompt);

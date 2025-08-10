@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-07-31
+ * @since 2025-08-10
  */
 @TableName("t_ai_cache")
 public class TAiCache implements Serializable {

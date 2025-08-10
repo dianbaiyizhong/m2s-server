@@ -7,6 +7,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.dashscope.app.Application;
+import com.alibaba.dashscope.app.ApplicationParam;
+import com.alibaba.dashscope.app.ApplicationResult;
+import com.alibaba.dashscope.exception.InputRequiredException;
+import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,6 +37,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,8 +54,6 @@ public class ServiceTest {
     private ISpiderService ISpiderService;
 
 
-    @Autowired
-    private S3Repository s3Repository;
 
     @Autowired
     private TNewsMapper newsMapper;
@@ -65,55 +69,25 @@ public class ServiceTest {
     public void importVideoNews() {
 
 
-        // 去preview表新建一个combo，获取comboId
-        int comboId = 110;
-        String videoFileName = "202507271802";
-        String fileBasePath = "/Users/huanghaoming/Documents/新闻视频工作空间/";
-        String newsTitle = "泰柬在边界12处交火，不排除升級為全面戰爭";
-        String countryName = "柬埔寨";
-        String subArea = "";
 
-
-        TNews item = new TNews();
-        item.setTitle(newsTitle);
-        item.setAreaLevel(AreaLevelType.COUNTRY.getCode());
-        item.setMapNews(true);
-        TCountry country = countryMapper.selectOne(new QueryWrapper<TCountry>().lambda()
-                .eq(TCountry::getName, countryName)
-        );
-        item.setAreaId(country.getId());
-        item.setComboId(comboId);
-        item.setCreateTime(LocalDateTime.now());
-        // 新闻时间差不多就行
-        item.setNewsTime(LocalDateTime.now());
-        s3Repository.uploadFile(new File(fileBasePath + videoFileName + ".mp4"), "mapnews_video/" + videoFileName + ".mp4");
-
-
-        File imageFile = new File(fileBasePath + videoFileName + "-0001.png");
-        if (FileUtil.exist(imageFile)) {
-            s3Repository.uploadFile(imageFile, "mapnews_video/" + videoFileName + "-0001.png");
-            item.setThumbImg("https://map-question.gz.bcebos.com/" + "mapnews_video/" + videoFileName + "-0001.png");
-        }
-        if (StringUtils.isNotEmpty(subArea)) {
-            item.setLocationSubtitle(subArea);
-        }
-        item.setVideoUrl("https://map-question.gz.bcebos.com/" + "mapnews_video/" + videoFileName + ".mp4");
-        newsMapper.insert(item);
 
     }
 
     @Test
-    void contextLoads() {
+    void contextLoads() throws NoApiKeyException, InputRequiredException {
 
-        newsService.getMapNewsCoverList(1, 10);
+//        newsService.getMapNewsCoverList(1, 10);
+
+
+
 
     }
 
 
     @Test
     public void spider() {
+        ISpiderService.spiderChinaNews();
 //        ISpiderService.spiderI18nNews();
-
     }
 
 
