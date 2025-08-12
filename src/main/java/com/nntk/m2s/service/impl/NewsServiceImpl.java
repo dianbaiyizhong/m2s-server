@@ -17,6 +17,7 @@ import com.nntk.m2s.exception.NoDataException;
 import com.nntk.m2s.mp.custom.mapper.TMapNewsPreviewJoinMapper;
 import com.nntk.m2s.mp.generate.entity.*;
 import com.nntk.m2s.mp.generate.mapper.*;
+import com.nntk.m2s.pojo.form.MoreNewsForm;
 import com.nntk.m2s.pojo.form.NewsRequestForm;
 import com.nntk.m2s.mp.custom.entity.MapNewsCoverDTO;
 import com.nntk.m2s.pojo.vo.NewsVo;
@@ -63,6 +64,39 @@ public class NewsServiceImpl implements INewsService {
     @Resource
     private IAiService aiService;
 
+    @Override
+    public PageResult<NewsVo> listMoreNews(MoreNewsForm moreNewsForm) {
+        Page<TNews> page = new Page<>(moreNewsForm.getPage(), moreNewsForm.getRows());
+
+        Page<TNews> tNewsPage = newsMapper.selectPage(page, new QueryWrapper<TNews>().lambda()
+                .eq(TNews::getAreaId, moreNewsForm.getAreaId())
+                .eq(TNews::getAreaLevel, moreNewsForm.getAreaLevel())
+                .orderByDesc(TNews::getNewsTime)
+        );
+        List<NewsVo> mapNewsList = tNewsPage.getRecords().stream().map(o ->
+                {
+                    NewsVo dto = new NewsVo();
+                    dto.setAreaId(o.getAreaId());
+                    dto.setAreaLevel(o.getAreaLevel());
+                    dto.setTitle(o.getTitle());
+                    long timestampUtc = o.getNewsTime()
+                            .atZone(ZoneId.of("Asia/Shanghai"))
+                            .toInstant()
+                            .toEpochMilli();
+                    dto.setArticleTime(timestampUtc);
+                    dto.setThumbImg(o.getThumbImg());
+                    dto.setContent(o.getNewsContent());
+                    dto.setSourceName(o.getSourceName());
+                    dto.setSourceUrl(o.getSourceUrl());
+                    return dto;
+                }
+        ).toList();
+
+
+        return new PageResult<>(page.getTotal(), mapNewsList);
+
+    }
+
 
     @Override
     public PageResult<MapNewsCoverDTO> getMapNewsCoverList(Integer page, Integer rows) {
@@ -79,6 +113,7 @@ public class NewsServiceImpl implements INewsService {
         Page<MapNewsCoverDTO> mapNewsCoverPOPage = mapNewsPreviewMapper.selectJoinPage(new Page<>(page, rows), MapNewsCoverDTO.class, wrapper);
         return new PageResult<>(mapNewsCoverPOPage.getTotal(), mapNewsCoverPOPage.getRecords());
     }
+
 
     @Override
     @Cacheable(value = "news", key = "#form.date + '_' + #form.rangeType")
@@ -257,7 +292,37 @@ public class NewsServiceImpl implements INewsService {
                 .sorted(Comparator.comparing(NewsVo::getArticleTime).reversed())
                 .collect(Collectors.toList());
 
-        return new PageResult<>(ret.size(), ret);
+
+        // 按id1和id2分组，并计算每组的数量
+        Map<List<Integer>, Long> countMap = ret.stream()
+                .collect(Collectors.groupingBy(
+                        bean -> List.of(bean.getAreaId(), bean.getAreaLevel()),
+                        Collectors.counting()
+                ));
+
+        // 按id1和id2分组，并获取每组中时间最新的记录
+        Map<List<Integer>, NewsVo> latestMap = ret.stream()
+                .collect(Collectors.groupingBy(
+                        bean -> List.of(bean.getAreaId(), bean.getAreaLevel()),
+                        Collectors.collectingAndThen(
+                                Collectors.maxBy(Comparator.comparing(NewsVo::getArticleTime)),
+                                optional -> optional.orElse(null)
+                        )
+                ));
+
+        // 创建结果列表，设置num属性
+        List<NewsVo> result = new ArrayList<>();
+        for (Map.Entry<List<Integer>, NewsVo> entry : latestMap.entrySet()) {
+            NewsVo bean = entry.getValue();
+            Long count = countMap.get(entry.getKey());
+            if (bean != null && count != null) {
+                bean.setAggSum(count.intValue());
+                result.add(bean);
+            }
+        }
+
+
+        return new PageResult<>(ret.size(), result);
 
     }
 

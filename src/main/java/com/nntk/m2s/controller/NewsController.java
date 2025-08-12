@@ -2,6 +2,7 @@ package com.nntk.m2s.controller;
 
 import com.nntk.m2s.mp.custom.entity.MapNewsCoverDTO;
 import com.nntk.m2s.pojo.form.BasePageForm;
+import com.nntk.m2s.pojo.form.MoreNewsForm;
 import com.nntk.m2s.pojo.form.NewsRequestForm;
 import com.nntk.m2s.pojo.vo.NewsVo;
 import com.nntk.m2s.repository.S3Repository;
@@ -45,6 +46,13 @@ public class NewsController {
     public ResultDataVo getPreview(@Valid BasePageForm form) {
         PageResult<MapNewsCoverDTO> mapNewsCoverList = newsService.getMapNewsCoverList(form.getPage(), form.getRows());
         return RespBodyBuilder.success(mapNewsCoverList);
+    }
+
+
+    @GetMapping("/list/more")
+    public ResultDataVo getMoreNews(@Valid MoreNewsForm form) {
+        PageResult<NewsVo> newsVoPageResult = newsService.listMoreNews(form);
+        return RespBodyBuilder.success(newsVoPageResult);
     }
 
 

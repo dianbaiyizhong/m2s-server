@@ -29,7 +29,7 @@ public class TMapNewsPreview implements Serializable {
 
     private Integer coverId;
 
-    private Byte enable;
+    private Boolean enable;
     
     public Integer getId() {
         return id;
@@ -63,11 +63,11 @@ public class TMapNewsPreview implements Serializable {
           this.coverId = coverId;
       }
     
-    public Byte getEnable() {
+    public Boolean getEnable() {
         return enable;
     }
 
-      public void setEnable(Byte enable) {
+      public void setEnable(Boolean enable) {
           this.enable = enable;
       }
 

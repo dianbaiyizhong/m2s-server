@@ -26,6 +26,7 @@ logging:
   level:
     tracer: trace
 
+
 bailian:
   apiKey: sk-cb80f6a73a5f4ffb80b12f3260eb7217
   appId: 3612d3d43acf4b77b695c0859d7a1da9

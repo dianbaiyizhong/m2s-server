@@ -67,7 +67,7 @@ public class AiServiceImpl implements IAiService {
     public String getBailianResponse(String prompt, String appId) {
         TAiCache aiCache = aiCacheMapper.selectOne(new QueryWrapper<TAiCache>()
                 .lambda()
-                .eq(TAiCache::getPromptMd5, MD5.create().digestHex(prompt))
+                .eq(TAiCache::getPromptMd5, MD5.create().digestHex(prompt + appId))
         );
         if (aiCache != null) {
             return MarkdownUtils.getJson(aiCache.getContent());
@@ -93,7 +93,7 @@ public class AiServiceImpl implements IAiService {
             return CommonConst.NEWS_NOT_FOUND;
         }
         aiCache = new TAiCache();
-        aiCache.setPromptMd5(MD5.create().digestHex(prompt));
+        aiCache.setPromptMd5(MD5.create().digestHex(prompt + appId));
         aiCache.setPrompt(prompt);
         aiCache.setContent(content);
         aiCache.setCreateTime(LocalDateTime.now());

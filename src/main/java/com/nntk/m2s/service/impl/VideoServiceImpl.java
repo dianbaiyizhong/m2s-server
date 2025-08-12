@@ -26,10 +26,11 @@ import com.nntk.m2s.utils.SrtReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,23 +68,37 @@ public class VideoServiceImpl implements IVideoService {
     public static final String ytDlpPath = "/Users/huanghaoming/miniconda3/envs/common/bin/yt-dlp";
 
 
+    private Set<String> countryNameSet = new HashSet();
+
     @Autowired
     private TMapNewsPreviewMapper mapNewsPreviewMapper;
 
 
-    private void downloadYoutube(String url, String nameSpace) {
+    private void downloadYoutube(String url, String nameSpace) throws InterruptedException, IOException {
 
-        String videoName = nameSpace + ".mp4";
-        if (FileUtil.exist(fileBasePath + videoName)) {
+        String videoName = "raw.mp4";
+        String filePath = fileBasePath + nameSpace + "/";
+        String videoPath = filePath + videoName;
+        FileUtil.mkdir(filePath);
+        if (FileUtil.exist(videoPath)) {
             log.info("视频已存在...");
             return;
         }
         // 调用yt-dlp将视频下载到本地
         String cmd = ytDlpPath + " " +
-                "-o " + fileBasePath + videoName + " " +
-                url;
-        String result = RuntimeUtil.execForStr("bash", "-c", cmd);
-        log.info("yt-dlp download result:{}", result);
+                "-o " + videoPath + " '" +
+                url + "'";
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command("bash", "-c", cmd);
+        Process proc = pb.start();
+        InputStream inputStream = proc.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String responseLine = "";
+        while ((responseLine = reader.readLine()) != null) {
+            // System.out.println(responseLine);
+        }
+        proc.waitFor();
+
     }
 
 
@@ -96,25 +111,25 @@ public class VideoServiceImpl implements IVideoService {
         }
         String fullCommand = condaFunclipEnvPath + " " + funclipPath + " " +
                 "--stage " + 1 + " " +
-                "--file " + fileBasePath + nameSpace + "_spilt.mp4" + " " +
+                "--file " + fileBasePath + nameSpace + "/raw_spilt.mp4" + " " +
                 "--output_dir " + fileBasePath + nameSpace + "/funclip_output";
         log.info("fullCommand:{}", fullCommand);
 
         log.info("Executing command: {}", fullCommand);
 
         String result = RuntimeUtil.execForStr("bash", "-c", fullCommand);
-        log.info("funclip result:{}", result);
+        // log.info("funclip result:{}", result);
 
     }
 
 
     private void spiltVideo(String nameSpace) {
-        if (FileUtil.exist(fileBasePath + nameSpace + "_spilt.mp4")) {
+        if (FileUtil.exist(fileBasePath + nameSpace + "/raw_spilt.mp4")) {
             log.info("视频已切割...");
             return;
         }
         String fullCommand = condaCommonEnvPath + " " + spiltVideoScriptPath + " " +
-                " --input " + fileBasePath + nameSpace + ".mp4";
+                " --input " + fileBasePath + nameSpace + "/raw.mp4";
         String cmdResult = RuntimeUtil.execForStr("bash", "-c", fullCommand);
         if (cmdResult.contains("success")) {
             log.info("spiltVideo success");
@@ -126,12 +141,13 @@ public class VideoServiceImpl implements IVideoService {
 
     @Override
     @Transactional
-    public void buildVideo() {
+    public int buildVideo(String youtubeVideoUrl, String nameSpace) {
 
-        String youtubeVideoUrl = "https://www.youtube.com/watch?v=8bbx2YUiybU";
-        // String nameSpace = DateUtils.getYmdNow();
-        String nameSpace = "20250803";
-
+        // 初始化
+        List<TCountry> tCountries = countryMapper.selectList(null);
+        tCountries.forEach(tCountry -> {
+            countryNameSet.add(tCountry.getName());
+        });
         // 先生成一个comboId
         TMapNewsPreview mapNewsPreview = new TMapNewsPreview();
 
@@ -141,7 +157,11 @@ public class VideoServiceImpl implements IVideoService {
 
         // 定义从youtube下载下来的新闻原始视频文件名称
 
-        downloadYoutube(youtubeVideoUrl, nameSpace);
+        try {
+            downloadYoutube(youtubeVideoUrl, nameSpace);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         // 切割视频，只取视频后半段
         spiltVideo(nameSpace);
@@ -186,7 +206,7 @@ public class VideoServiceImpl implements IVideoService {
             log.info("最长连续的字幕索引:{}", longestConsecutive);
             String startTime = srtBos.get(longestConsecutive.get(0)).getStartTime();
             String endTime = srtBos.get(longestConsecutive.get(longestConsecutive.size() - 1)).getEndTime();
-            String videoName = nameSpace + "_00" + (i + 1);
+            String videoName = "video_00" + (i + 1);
             newsMap.put("videoFileName", videoName);
 
 
@@ -196,12 +216,12 @@ public class VideoServiceImpl implements IVideoService {
                 continue;
             }
             String fullCommand = condaCommonEnvPath + " " + videoHandleScriptPath + " " +
-                    " --input " + fileBasePath + nameSpace + "_spilt.mp4" +
-                    " --output " + fileBasePath + videoName + ".mp4" +
+                    " --input " + fileBasePath + nameSpace + "/raw_spilt.mp4" +
+                    " --output " + fileBasePath + nameSpace + "/" + videoName + ".mp4" +
                     " --start " + convertToSeconds(startTime) +
-                    " --end " + convertToSeconds(endTime);
+                    " --end " + (convertToSeconds(startTime) + 20);
 
-            double duration = convertToSeconds(endTime) - convertToSeconds(startTime);
+            int duration = (convertToSeconds(startTime) + 20) - convertToSeconds(startTime);
             if (duration <= 10) {
                 log.warn("视频时长小于20秒, 跳过该新闻:{},{}", duration, title);
                 continue;
@@ -216,39 +236,54 @@ public class VideoServiceImpl implements IVideoService {
             }
 
         }
+        processList(newsMapList);
 
-        System.out.println(newsMapList);
+
+        boolean isCover = false;
         for (int i = 0; i < newsMapList.size(); i++) {
-            int id = insertNews(newsMapList.get(i), comboId);
-            if (i == 0) {
+            int id = insertNews(newsMapList.get(i), comboId, nameSpace);
+            if (!isCover && id != 0) {
                 mapNewsPreview.setCoverId(id);
-                mapNewsPreview.setEnable(ByteUtil.intToByte(1));
+                mapNewsPreview.setEnable(true);
                 mapNewsPreviewMapper.updateById(mapNewsPreview);
+                isCover = true;
             }
         }
+
+
+        return comboId;
     }
 
 
     private boolean getAreaInfo(String title, Map<String, String> map) {
 
-        List<TCountry> tCountries = countryMapper.selectList(null);
 
         List<String> countryList = new ArrayList<>();
-        for (int i = 0; i < tCountries.size(); i++) {
-            if (title.contains(tCountries.get(i).getName())) {
-                countryList.add(tCountries.get(i).getName());
+        for (String tCountry : countryNameSet) {
+            if (title.startsWith(tCountry)) {
+                countryList.add(tCountry);
             }
         }
 
         if (countryList.isEmpty()) {
+            // 找ai分析
+            String country = aiService.getBailianResponse(title, "56f25c6a279f4e05a7a6825029674e15");
+            log.info("ai识别地名:{}", country);
+
+            if (!countryNameSet.contains(country)) {
+                countryList.add(country);
+                return false;
+            }
+
+        }
+        if (countryList.isEmpty()) {
             return false;
         }
         map.put("country", String.join(",", countryList));
-
         return true;
     }
 
-    private int insertNews(Map<String, String> map, int comboId) {
+    private int insertNews(Map<String, String> map, int comboId, String nameSpace) {
         String subArea = null;
         TNews item = new TNews();
         item.setTitle(map.get("title"));
@@ -266,18 +301,39 @@ public class VideoServiceImpl implements IVideoService {
         item.setCreateTime(LocalDateTime.now());
         // 新闻时间差不多就行
         item.setNewsTime(LocalDateTime.now());
-        s3Repository.uploadFile(new File(fileBasePath + videoFileName + ".mp4"), "mapnews_video/" + videoFileName + ".mp4");
+        s3Repository.uploadFile(new File(fileBasePath + nameSpace + "/" + videoFileName + ".mp4"), "mapnews_video/" + nameSpace + "/" + videoFileName + ".mp4");
 
 
-        File imageFile = new File(fileBasePath + videoFileName + "_thumb.png");
+        File imageFile = new File(fileBasePath + nameSpace + "/" + videoFileName + "_thumb.png");
         if (FileUtil.exist(imageFile)) {
-            s3Repository.uploadFile(imageFile, "mapnews_video/" + videoFileName + "_thumb.png");
-            item.setThumbImg("https://map-question.gz.bcebos.com/" + "mapnews_video/" + videoFileName + "_thumb.png");
+            s3Repository.uploadFile(imageFile, "mapnews_video/" + nameSpace + "/" + videoFileName + "_thumb.png");
+            item.setThumbImg("https://map-question.gz.bcebos.com/" + "mapnews_video/" + nameSpace + "/" + videoFileName + "_thumb.png");
         }
         if (StringUtils.isNotEmpty(subArea)) {
             item.setLocationSubtitle(subArea);
         }
-        item.setVideoUrl("https://map-question.gz.bcebos.com/" + "mapnews_video/" + videoFileName + ".mp4");
+        item.setVideoUrl("https://map-question.gz.bcebos.com/" + "mapnews_video/" + nameSpace + "/" + videoFileName + ".mp4");
+
+        boolean existCountry = newsMapper.exists(new QueryWrapper<TNews>().lambda()
+                .eq(TNews::getComboId, comboId)
+                .eq(TNews::getAreaLevel, AreaLevelType.COUNTRY.getCode())
+                .eq(TNews::getAreaId, country.getId())
+        );
+
+        if (existCountry) {
+            log.info("已经存在相同国家");
+            return 0;
+        }
+
+        boolean exist = newsMapper.exists(new QueryWrapper<TNews>().lambda()
+                .eq(TNews::getTitle, item.getTitle())
+        );
+
+        if (exist) {
+            log.info("已经存在相同新闻:{}", item.getTitle());
+            return 0;
+        }
+
         newsMapper.insert(item);
 
         return item.getId();
@@ -285,7 +341,7 @@ public class VideoServiceImpl implements IVideoService {
     }
 
 
-    private static double convertToSeconds(String timeString) {
+    private static int convertToSeconds(String timeString) {
         // 分割时:分:秒,毫秒
         String[] parts = timeString.split("[:,]");
 
@@ -295,7 +351,41 @@ public class VideoServiceImpl implements IVideoService {
         int millis = Integer.parseInt(parts[3]);   // 毫秒
 
         // 计算总秒数 = 时*3600 + 分*60 + 秒 + 毫秒/1000.0
-        return hours * 3600 + minutes * 60 + seconds + millis / 1000.0;
+        return (int) (hours * 3600 + minutes * 60 + seconds + millis / 1000.0);
     }
 
+
+    public static void processList(List<Map<String, String>> list) {
+        // 用于记录已经出现过的国家
+        Set<String> seenCountries = new HashSet<>();
+
+        // 遍历列表中的每个map
+        for (Map<String, String> map : list) {
+            if (map.containsKey("country")) {
+                String countryValue = map.get("country");
+
+                // 分割国家字符串
+                List<String> countries = Arrays.stream(countryValue.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+
+                // 保留未出现过的国家
+                List<String> newCountries = new ArrayList<>();
+                for (String country : countries) {
+                    if (!seenCountries.contains(country)) {
+                        newCountries.add(country);
+                        seenCountries.add(country);
+                    }
+                }
+
+                // 更新map中的country值
+                if (newCountries.isEmpty()) {
+                    map.remove("country"); // 如果所有国家都已存在，则移除该属性
+                } else {
+                    map.put("country", String.join(",", newCountries));
+                }
+            }
+        }
+    }
 }

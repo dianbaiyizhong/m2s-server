@@ -1,8 +1,12 @@
 package com.nntk.m2s;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.dashscope.app.Application;
 import com.alibaba.dashscope.app.ApplicationParam;
 import com.alibaba.dashscope.app.ApplicationResult;
@@ -30,6 +34,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,10 +57,46 @@ public class VideoTest {
     @Autowired
     private IVideoService videoService;
 
+    @Autowired
+    private TCctvListMapper cctvListMapper;
+
     @Test
     void buildVideo() throws NoApiKeyException, InputRequiredException, IOException {
 
-        videoService.buildVideo();
+
+        List<String> strings = FileUtil.readLines("/Users/huanghaoming/Documents/新闻视频工作空间/cctv_youtube_list.txt", Charset.defaultCharset());
+
+        for (int i = 0; i < strings.size(); i++) {
+            String url = strings.get(i);
+            TCctvList cctvList = new TCctvList();
+            cctvList.setUrl(url);
+            // boolean exists = cctvListMapper.exists(new QueryWrapper<TCctvList>().eq(TCctvList::getUrl, url));
+            try {
+                Document doc = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                        .timeout(10000)
+                        .get();
+                // 选择新闻条目（根据实际网页结构调整选择器）
+                String title = doc.title();
+                String nameSpace = ReUtil.get("(\\d{8})", title, 0);
+                cctvList.setCctvTime(nameSpace);
+                cctvListMapper.insert(cctvList);
+            } catch (Exception e) {
+                log.info(ExceptionUtil.getMessage(e));
+            }
+        }
+
+//        List<TCctvList> tCctvLists = cctvListMapper.selectList(new QueryWrapper<TCctvList>().lambda()
+//                .ne(TCctvList::getStatus, 1)
+//                .last("limit 3")
+//        );
+//
+//        for (int i = 0; i < tCctvLists.size(); i++) {
+//            // 发送HTTP请求并获取文档对象
+
+//            videoService.buildVideo("https://youtu.be/l7jeEtozNQA?si=UV8dzq8xFT9pAE0U", "20250711");
+//        }
+
 
     }
 
