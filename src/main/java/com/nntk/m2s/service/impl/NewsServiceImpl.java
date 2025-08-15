@@ -69,6 +69,7 @@ public class NewsServiceImpl implements INewsService {
         Page<TNews> page = new Page<>(moreNewsForm.getPage(), moreNewsForm.getRows());
 
         Page<TNews> tNewsPage = newsMapper.selectPage(page, new QueryWrapper<TNews>().lambda()
+                .eq(TNews::getMapNews, false)
                 .eq(TNews::getAreaId, moreNewsForm.getAreaId())
                 .eq(TNews::getAreaLevel, moreNewsForm.getAreaLevel())
                 .orderByDesc(TNews::getNewsTime)
@@ -320,6 +321,13 @@ public class NewsServiceImpl implements INewsService {
                 result.add(bean);
             }
         }
+
+        Collections.sort(result, new Comparator<NewsVo>() {
+            @Override
+            public int compare(NewsVo o1, NewsVo o2) {
+                return o2.getArticleTime().compareTo(o1.getArticleTime());
+            }
+        });
 
 
         return new PageResult<>(ret.size(), result);

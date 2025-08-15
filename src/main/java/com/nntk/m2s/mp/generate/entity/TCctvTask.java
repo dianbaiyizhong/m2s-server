@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-08-10
+ * @since 2025-08-16
  */
-@TableName("t_cctv_list")
-public class TCctvList implements Serializable {
+@TableName("t_cctv_task")
+public class TCctvTask implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -83,7 +83,7 @@ public class TCctvList implements Serializable {
 
     @Override
     public String toString() {
-        return "TCctvList{" +
+        return "TCctvTask{" +
                   "id = " + id +
                       ", url = " + url +
                       ", status = " + status +

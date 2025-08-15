@@ -58,7 +58,7 @@ public class VideoTest {
     private IVideoService videoService;
 
     @Autowired
-    private TCctvListMapper cctvListMapper;
+    private TCctvTaskMapper cctvListMapper;
 
     @Test
     void buildVideo() throws NoApiKeyException, InputRequiredException, IOException {
@@ -68,7 +68,7 @@ public class VideoTest {
 
         for (int i = 0; i < strings.size(); i++) {
             String url = strings.get(i);
-            TCctvList cctvList = new TCctvList();
+            TCctvTask cctvList = new TCctvTask();
             cctvList.setUrl(url);
             // boolean exists = cctvListMapper.exists(new QueryWrapper<TCctvList>().eq(TCctvList::getUrl, url));
             try {

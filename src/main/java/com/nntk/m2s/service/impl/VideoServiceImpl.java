@@ -95,9 +95,15 @@ public class VideoServiceImpl implements IVideoService {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String responseLine = "";
         while ((responseLine = reader.readLine()) != null) {
-            // System.out.println(responseLine);
+            System.out.println(responseLine);
+            if (responseLine.contains("has already been downloaded")) {
+                log.info("视频已存在，跳过下载:{}", videoPath);
+                break;
+            }
         }
         proc.waitFor();
+        // 文件名可能叫raw.mp4.webm，将起改名字
+        FileUtil.rename(new File(videoPath), "raw.mp4", true);
 
     }
 
@@ -128,6 +134,7 @@ public class VideoServiceImpl implements IVideoService {
             log.info("视频已切割...");
             return;
         }
+        log.info("开始切割视频...");
         String fullCommand = condaCommonEnvPath + " " + spiltVideoScriptPath + " " +
                 " --input " + fileBasePath + nameSpace + "/raw.mp4";
         String cmdResult = RuntimeUtil.execForStr("bash", "-c", fullCommand);
@@ -178,10 +185,13 @@ public class VideoServiceImpl implements IVideoService {
                 .collect(Collectors.joining(""));
 
 
-        String bailianResponse = aiService.getBailianResponse(text, "26a82a01b5d443bf8fce0e4b0a3c5c8d");
+        text = """
+                %s。
+                这段文本中拆分出有哪些是国际新闻，并返回拆分后的片段，以及一个比较清楚的新闻标题。返回json数组格式，每一个元素有两个属性，title代表新闻标题，content代表片段
+                """.formatted(text);
+        String deepSeekResponse = aiService.getDeepSeekResponse(text);
 
-
-        JSONArray jsonArray = JSON.parseArray(bailianResponse);
+        JSONArray jsonArray = JSON.parseArray(deepSeekResponse);
 
 
         List<Map<String, String>> newsMapList = new ArrayList<>();
@@ -204,6 +214,9 @@ public class VideoServiceImpl implements IVideoService {
             }
             List<Integer> longestConsecutive = CollectionUtil.findLongestConsecutive(newsSet);
             log.info("最长连续的字幕索引:{}", longestConsecutive);
+            if (longestConsecutive.isEmpty()) {
+                continue;
+            }
             String startTime = srtBos.get(longestConsecutive.get(0)).getStartTime();
             String endTime = srtBos.get(longestConsecutive.get(longestConsecutive.size() - 1)).getEndTime();
             String videoName = "video_00" + (i + 1);
@@ -219,11 +232,11 @@ public class VideoServiceImpl implements IVideoService {
                     " --input " + fileBasePath + nameSpace + "/raw_spilt.mp4" +
                     " --output " + fileBasePath + nameSpace + "/" + videoName + ".mp4" +
                     " --start " + convertToSeconds(startTime) +
-                    " --end " + (convertToSeconds(startTime) + 20);
+                    " --end " + convertToSeconds(endTime);
 
-            int duration = (convertToSeconds(startTime) + 20) - convertToSeconds(startTime);
-            if (duration <= 10) {
-                log.warn("视频时长小于20秒, 跳过该新闻:{},{}", duration, title);
+            int duration = convertToSeconds(endTime) - convertToSeconds(startTime);
+            if (duration <= 25) {
+                log.warn("视频时长小于25秒, 跳过该新闻:{},{}", duration, title);
                 continue;
             }
 
@@ -236,9 +249,6 @@ public class VideoServiceImpl implements IVideoService {
             }
 
         }
-        processList(newsMapList);
-
-
         boolean isCover = false;
         for (int i = 0; i < newsMapList.size(); i++) {
             int id = insertNews(newsMapList.get(i), comboId, nameSpace);
@@ -256,12 +266,11 @@ public class VideoServiceImpl implements IVideoService {
 
 
     private boolean getAreaInfo(String title, Map<String, String> map) {
-
-
         List<String> countryList = new ArrayList<>();
         for (String tCountry : countryNameSet) {
             if (title.startsWith(tCountry)) {
                 countryList.add(tCountry);
+                break;
             }
         }
 
@@ -269,12 +278,9 @@ public class VideoServiceImpl implements IVideoService {
             // 找ai分析
             String country = aiService.getBailianResponse(title, "56f25c6a279f4e05a7a6825029674e15");
             log.info("ai识别地名:{}", country);
-
-            if (!countryNameSet.contains(country)) {
+            if (countryNameSet.contains(country)) {
                 countryList.add(country);
-                return false;
             }
-
         }
         if (countryList.isEmpty()) {
             return false;
@@ -368,7 +374,7 @@ public class VideoServiceImpl implements IVideoService {
                 List<String> countries = Arrays.stream(countryValue.split(","))
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())
-                        .collect(Collectors.toList());
+                        .toList();
 
                 // 保留未出现过的国家
                 List<String> newCountries = new ArrayList<>();

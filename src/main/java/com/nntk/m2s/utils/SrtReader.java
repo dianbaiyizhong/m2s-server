@@ -18,7 +18,7 @@ public class SrtReader {
         List<String> lines = FileUtil.readLines(new File(filePath), Charset.defaultCharset());
 
 
-        for (int i = 0; i < lines.size(); i = i + 3) {
+        for (int i = 0; i < lines.size(); i = i + 4) {
             SrtBo srtBo = new SrtBo();
             String index = lines.get(i);
             String timeLine = lines.get(i + 1);
