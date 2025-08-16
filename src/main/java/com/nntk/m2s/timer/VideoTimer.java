@@ -31,12 +31,12 @@ public class VideoTimer {
     private TCctvTaskMapper cctvTaskMapper;
 
 
-    @Scheduled(cron = "0 53 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void scanVideo() {
 
         String nameSpace = null;
 
-        String url = "https://www.youtube.com/watch?v=J-mixttkETs&list=PL0eGJygpmOH5xQuy8fpaOvKrenoCsWrKh&index=1";
+        String url = "https://www.youtube.com/watch?v=MVT_77nHfL4&list=PL0eGJygpmOH5xQuy8fpaOvKrenoCsWrKh&index=1";
         try {
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")

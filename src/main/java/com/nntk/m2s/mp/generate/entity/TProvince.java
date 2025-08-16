@@ -47,6 +47,8 @@ public class TProvince implements Serializable {
      * 新冠肺炎口号
      */
       private String ncpSlogan;
+
+    private String countryCode;
     
     public Integer getId() {
         return id;
@@ -135,6 +137,14 @@ public class TProvince implements Serializable {
       public void setNcpSlogan(String ncpSlogan) {
           this.ncpSlogan = ncpSlogan;
       }
+    
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+      public void setCountryCode(String countryCode) {
+          this.countryCode = countryCode;
+      }
 
     @Override
     public String toString() {
@@ -150,6 +160,7 @@ public class TProvince implements Serializable {
                       ", lat = " + lat +
                       ", imageUrl = " + imageUrl +
                       ", ncpSlogan = " + ncpSlogan +
+                      ", countryCode = " + countryCode +
                   "}";
     }
 }

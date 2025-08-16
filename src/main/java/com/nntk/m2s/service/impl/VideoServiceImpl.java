@@ -88,6 +88,7 @@ public class VideoServiceImpl implements IVideoService {
         String cmd = ytDlpPath + " " +
                 "-o " + videoPath + " '" +
                 url + "'";
+        System.out.println(cmd);
         ProcessBuilder pb = new ProcessBuilder();
         pb.command("bash", "-c", cmd);
         Process proc = pb.start();
@@ -98,6 +99,7 @@ public class VideoServiceImpl implements IVideoService {
             System.out.println(responseLine);
             if (responseLine.contains("has already been downloaded")) {
                 log.info("视频已存在，跳过下载:{}", videoPath);
+                proc.destroy();
                 break;
             }
         }
@@ -203,7 +205,7 @@ public class VideoServiceImpl implements IVideoService {
             List<Integer> newsSet = new ArrayList<>();
             for (int j = 0; j < srtBos.size(); j++) {
                 if (content.contains(srtBos.get(j).getText())) {
-                    newsSet.add(j + 1);
+                    newsSet.add(j);
                 }
             }
             log.info("新闻标题:{}", title);
@@ -217,8 +219,10 @@ public class VideoServiceImpl implements IVideoService {
             if (longestConsecutive.isEmpty()) {
                 continue;
             }
-            String startTime = srtBos.get(longestConsecutive.get(0)).getStartTime();
+            // 虽然是开始时间，但是为了避免上文还未结束，取结束时间
+            String startTime = srtBos.get(longestConsecutive.get(0)).getEndTime();
             String endTime = srtBos.get(longestConsecutive.get(longestConsecutive.size() - 1)).getEndTime();
+            log.info("新闻开始时间:{}, 结束时间:{}", startTime, endTime);
             String videoName = "video_00" + (i + 1);
             newsMap.put("videoFileName", videoName);
 
@@ -235,8 +239,8 @@ public class VideoServiceImpl implements IVideoService {
                     " --end " + convertToSeconds(endTime);
 
             int duration = convertToSeconds(endTime) - convertToSeconds(startTime);
-            if (duration <= 25) {
-                log.warn("视频时长小于25秒, 跳过该新闻:{},{}", duration, title);
+            if (duration < 20) {
+                log.warn("视频时长小于20秒, 跳过该新闻:{},{}", duration, title);
                 continue;
             }
 

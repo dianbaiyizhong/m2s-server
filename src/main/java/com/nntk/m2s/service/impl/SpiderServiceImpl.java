@@ -14,6 +14,7 @@ import com.nntk.m2s.mp.generate.entity.*;
 import com.nntk.m2s.mp.generate.mapper.*;
 import com.nntk.m2s.pojo.bo.MediaImage;
 import com.nntk.m2s.pojo.bo.SinaNewsBo;
+import com.nntk.m2s.repository.HttpRepository;
 import com.nntk.m2s.service.IAiService;
 import com.nntk.m2s.service.ISpiderService;
 import jakarta.annotation.Resource;
@@ -23,6 +24,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +98,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
         loadGeoData();
 
-        for (int i = 1; i <= 500; i++) {
+        for (int i = 1; i <= 5; i++) {
             Map<String, Object> paramMap = new LinkedHashMap<>();
             paramMap.put("pageid", "121");
             paramMap.put("lid", "1356");
@@ -154,6 +156,7 @@ public class SpiderServiceImpl implements ISpiderService {
                             }
                             insertNews2Db(newsEntity);
                         } catch (Exception e) {
+                            e.printStackTrace();
                             log.error("解析异常:{}:{}", title, e.getMessage());
                         }
 
@@ -240,6 +243,7 @@ public class SpiderServiceImpl implements ISpiderService {
                     parseDetail(newsEntity);
                     insertNews2Db(newsEntity);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     log.error("解析异常:{}:{}", title, e.getMessage());
                 }
 
@@ -259,8 +263,11 @@ public class SpiderServiceImpl implements ISpiderService {
     }
 
 
+    @Autowired
+    private HttpRepository httpRepository;
+
     private void parseDetail(SinaNewsBo sinaNewsBo) {
-        String body = HttpUtil.createGet(sinaNewsBo.getSourceUrl()).execute().body();
+        String body = httpRepository.get(sinaNewsBo.getSourceUrl());
 
         // 正则表达式截取来源：潇湘晨报<
         String sourceRegex = ">　　来源：(.*?)<";
@@ -307,21 +314,37 @@ public class SpiderServiceImpl implements ISpiderService {
                 """.formatted(title + " " + sinaNewsBo.getContent());
         String deepSeekResponse = aiService.getBailianResponse(prompt);
 
-        JSONObject aiBody = JSON.parseObject(deepSeekResponse);
+        JSONObject aiBody = null;
+        int newsType = 0;
+        try {
+            aiBody = JSON.parseObject(deepSeekResponse);
+            newsType = aiBody.getInteger("type");
+        } catch (Exception e) {
+            log.error("ai解析异常:{}", deepSeekResponse);
+            return;
+        }
 
-
-        int newsType = aiBody.getInteger("type");
         if (!(newsType == 1 || newsType == 2 || newsType == 3 || newsType == 4 || newsType == 5 || newsType == 6 || newsType == 7 || newsType == 8)) {
             log.warn("新闻分类异常。【{}】", sinaNewsBo.getTitle());
             // matchText(sinaNewsBo);
         } else {
             log.info("title:{},aiBody:{}", title, aiBody);
             sinaNewsBo.setNewsType(newsType);
+
+            String area = aiBody.getString("area");
+            if (StringUtils.isEmpty(area)) {
+                log.info("新闻解析不到地名:{},", title);
+                return;
+            }
+            String detailAreaInfo = aiService.getBailianResponse(area, "b7350c95f9e04e5c9324cb6fe7c520eb");
+            log.info("title:{},detailAreaInfo:{}", title, detailAreaInfo);
+            JSONObject detailAreaInfoBody = JSON.parseObject(detailAreaInfo);
+
             // 判断是否含有地名关键字
-            String city = aiBody.getString("cityName");
-            String province = aiBody.getString("province");
-            String country = aiBody.getString("country");
-            String distinct = aiBody.getString("distinctName");
+            String city = detailAreaInfoBody.getString("city_name");
+            String province = detailAreaInfoBody.getString("province_name");
+            String country = detailAreaInfoBody.getString("country_name");
+            String distinct = detailAreaInfoBody.getString("distinct_name");
 
             if (province.equals(city)) {
                 // 解决北京市省份和北京市城市的问题
