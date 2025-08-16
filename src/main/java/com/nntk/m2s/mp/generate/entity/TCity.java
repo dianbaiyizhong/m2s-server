@@ -44,6 +44,8 @@ public class TCity implements Serializable {
     private String intro;
 
     private LocalDateTime updateTime;
+
+    private String provinceCode;
     
     public Integer getId() {
         return id;
@@ -140,6 +142,14 @@ public class TCity implements Serializable {
       public void setUpdateTime(LocalDateTime updateTime) {
           this.updateTime = updateTime;
       }
+    
+    public String getProvinceCode() {
+        return provinceCode;
+    }
+
+      public void setProvinceCode(String provinceCode) {
+          this.provinceCode = provinceCode;
+      }
 
     @Override
     public String toString() {
@@ -156,6 +166,7 @@ public class TCity implements Serializable {
                       ", intro2 = " + intro2 +
                       ", intro = " + intro +
                       ", updateTime = " + updateTime +
+                      ", provinceCode = " + provinceCode +
                   "}";
     }
 }

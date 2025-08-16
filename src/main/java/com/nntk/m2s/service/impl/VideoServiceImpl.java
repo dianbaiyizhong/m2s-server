@@ -203,7 +203,7 @@ public class VideoServiceImpl implements IVideoService {
             List<Integer> newsSet = new ArrayList<>();
             for (int j = 0; j < srtBos.size(); j++) {
                 if (content.contains(srtBos.get(j).getText())) {
-                    newsSet.add(j);
+                    newsSet.add(j + 1);
                 }
             }
             log.info("新闻标题:{}", title);

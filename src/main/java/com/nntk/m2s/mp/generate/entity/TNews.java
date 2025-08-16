@@ -53,6 +53,8 @@ public class TNews implements Serializable {
     private String images;
 
     private LocalDate formattedNewsDate;
+
+    private Integer newsType;
     
     public Integer getId() {
         return id;
@@ -181,6 +183,14 @@ public class TNews implements Serializable {
       public void setFormattedNewsDate(LocalDate formattedNewsDate) {
           this.formattedNewsDate = formattedNewsDate;
       }
+    
+    public Integer getNewsType() {
+        return newsType;
+    }
+
+      public void setNewsType(Integer newsType) {
+          this.newsType = newsType;
+      }
 
     @Override
     public String toString() {
@@ -201,6 +211,7 @@ public class TNews implements Serializable {
                       ", newsContent = " + newsContent +
                       ", images = " + images +
                       ", formattedNewsDate = " + formattedNewsDate +
+                      ", newsType = " + newsType +
                   "}";
     }
 }

@@ -1,4 +1,4 @@
-package com.nntk.m2s.config;
+package com.nntk.m2s.timer;
 
 import cn.hutool.system.SystemUtil;
 import org.springframework.context.annotation.Condition;

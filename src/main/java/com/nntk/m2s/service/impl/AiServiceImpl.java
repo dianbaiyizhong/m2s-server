@@ -76,7 +76,7 @@ public class AiServiceImpl implements IAiService {
                 // 若没有配置环境变量，可用百炼API Key将下行替换为：.apiKey("sk-xxx")。但不建议在生产环境中直接将API Key硬编码到代码中，以减少API Key泄露风险。
                 .apiKey(bailianApiKey)
                 .appId(appId)
-                .enableWebSearch(true)
+                .enableWebSearch(false)
                 .prompt(prompt)
                 .build();
 

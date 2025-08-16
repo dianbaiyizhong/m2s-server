@@ -8,6 +8,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
+import com.nntk.m2s.constant.AreaLevelType;
 import com.nntk.m2s.constant.CommonConst;
 import com.nntk.m2s.mp.generate.entity.*;
 import com.nntk.m2s.mp.generate.mapper.*;
@@ -95,7 +96,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
         loadGeoData();
 
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= 500; i++) {
             Map<String, Object> paramMap = new LinkedHashMap<>();
             paramMap.put("pageid", "121");
             paramMap.put("lid", "1356");
@@ -122,7 +123,7 @@ public class SpiderServiceImpl implements ISpiderService {
                     SinaNewsBo newsEntity = new SinaNewsBo();
                     newsEntity = JSON.parseObject(item.toJSONString(), SinaNewsBo.class);
                     List<String> sources = JSON.parseArray(newsEntity.getUrls(), String.class);
-                    if (sources.size() > 0) {
+                    if (!sources.isEmpty()) {
                         Map<String, String> map = new HashMap<>();
                         map.put("title", newsEntity.getTitle());
                         map.put("url", sources.get(0));
@@ -140,7 +141,7 @@ public class SpiderServiceImpl implements ISpiderService {
                         List<MediaImage> mediaImage = JSON.parseArray(newsEntity.getSinaRawImages(), MediaImage.class);
                         if (!CollectionUtils.isEmpty(mediaImage)) {
                             List<String> imagesUrls = new ArrayList<>();
-                            imagesUrls = mediaImage.stream().map(MediaImage::getU).collect(Collectors.toList());
+                            imagesUrls = mediaImage.stream().map(MediaImage::getU).toList();
                             newsEntity.setThumbUrl(imagesUrls.get(0));
                             newsEntity.setImages(JSON.toJSONString(newsEntity.getImages()));
                         }
@@ -148,7 +149,7 @@ public class SpiderServiceImpl implements ISpiderService {
                         try {
                             parseDetail(newsEntity);
                             if (newsEntity.getAreaLevel() == 4) {
-                                log.warn("误判为国际新闻，跳过");
+                                log.warn("误判为国际新闻，跳过:{}", newsEntity.getTitle());
                                 continue;
                             }
                             insertNews2Db(newsEntity);
@@ -184,6 +185,9 @@ public class SpiderServiceImpl implements ISpiderService {
         news.setSourceName(newsEntity.getMediaName());
         news.setSourceUrl(newsEntity.getSourceUrl());
         news.setImages(newsEntity.getImages());
+        news.setNewsType(newsEntity.getNewsType());
+        news.setComboId(0);
+        news.setLocationSubtitle(newsEntity.getLocationSub());
         news.setMapNews(false);
         try {
             newsMapper.insert(news);
@@ -224,7 +228,7 @@ public class SpiderServiceImpl implements ISpiderService {
                         .eq(TNews::getTitle, title)
                 );
                 if (exists) {
-                    log.info("新闻标题已存在，跳过：{}", title);
+                    log.warn("新闻标题已存在，跳过：{}", title);
                     continue;
                 }
 
@@ -294,58 +298,98 @@ public class SpiderServiceImpl implements ISpiderService {
         // 解析原文章
         htmlBody.select("script").remove();
         String text = htmlBody.select(".article").html();
-        sinaNewsBo.setRawContent(text.replaceAll("src=\"//k.sinaimg.cn","src=\"https://k.sinaimg.cn"));
-
+        sinaNewsBo.setRawContent(text.replaceAll("src=\"//k.sinaimg.cn", "src=\"https://k.sinaimg.cn"));
+        sinaNewsBo.setContent(htmlBody.select(".article").text());
         String title = sinaNewsBo.getTitle();
 
         String prompt = """
-                %s。
-                以上是一个网络新闻标题，请联网搜索，返回一个json对象，包含type，area两个属性;
-                type：如果这是一条地方新闻返回1，否则返回0；如果等于0，就不需要area，返回空即可;
-                如果这是一条国际新闻，则判断是否与与特定的国家关联上。如果是，也可以返回type为1
-                area：发生地（xxx国，xxx省,xxx市）如果具体不到城市，那就返回省份;如果是外国的，那就返回国名例如xxx国
-                """.formatted(title);
+                %s
+                """.formatted(title + " " + sinaNewsBo.getContent());
         String deepSeekResponse = aiService.getBailianResponse(prompt);
 
         JSONObject aiBody = JSON.parseObject(deepSeekResponse);
 
 
-        if (aiBody.getInteger("type") == 0) {
-            log.warn("这个新闻ai判断没有明显地区性。【{}】", sinaNewsBo.getTitle());
+        int newsType = aiBody.getInteger("type");
+        if (!(newsType == 1 || newsType == 2 || newsType == 3 || newsType == 4 || newsType == 5 || newsType == 6 || newsType == 7 || newsType == 8)) {
+            log.warn("新闻分类异常。【{}】", sinaNewsBo.getTitle());
             // matchText(sinaNewsBo);
         } else {
-            log.info("aiBody:{}", aiBody);
-            sinaNewsBo.setKeywords(aiBody.getString("area"));
+            log.info("title:{},aiBody:{}", title, aiBody);
+            sinaNewsBo.setNewsType(newsType);
             // 判断是否含有地名关键字
-            String[] kewordsArray = sinaNewsBo.getKewordsArray();
-            for (String keyword : kewordsArray) {
-                Integer cityKey = getLikeByMap(cityMap, keyword);
-                if (cityKey != null) {
-                    sinaNewsBo.setAreaLevel(2);
-                    sinaNewsBo.setPosInfoId(cityKey);
-                    break;
-                }
-                Integer provinceKey = getLikeByMap(provinceMap, keyword);
-                if (provinceKey != null) {
-                    sinaNewsBo.setAreaLevel(1);
-                    sinaNewsBo.setPosInfoId(provinceKey);
-                    break;
-                }
-                Integer countryKey = getLikeByMap(countryMap, keyword);
+            String city = aiBody.getString("cityName");
+            String province = aiBody.getString("province");
+            String country = aiBody.getString("country");
+            String distinct = aiBody.getString("distinctName");
+
+            if (province.equals(city)) {
+                // 解决北京市省份和北京市城市的问题
+                city = null;
+            }
+
+
+            if (StringUtils.isNotEmpty(country)) {
+                Integer countryKey = getLikeByMap(countryMap, country);
                 if (countryKey != null) {
                     sinaNewsBo.setAreaLevel(4);
                     sinaNewsBo.setPosInfoId(countryKey);
-                    break;
                 }
-                log.info("ai返回的地名没有识别到，那就使用文本判断");
+            }
+            if (StringUtils.isNotEmpty(province)) {
+                Integer provinceKey = getLikeByMap(provinceMap, province);
+                if (provinceKey != null) {
+                    sinaNewsBo.setAreaLevel(1);
+                    sinaNewsBo.setPosInfoId(provinceKey);
+                }
+            }
+            if (StringUtils.isNotEmpty(city)) {
+                Integer cityKey = getLikeByMap(cityMap, city);
+                if (cityKey != null) {
+                    sinaNewsBo.setAreaLevel(2);
+                    sinaNewsBo.setPosInfoId(cityKey);
+                }
+            }
+
+
+            List<String> locationSubList = new ArrayList<>();
+            if (sinaNewsBo.getAreaLevel() == AreaLevelType.COUNTRY.getCode()) {
+                // 如果是国家，则只要记录
+                if (StringUtils.isNotEmpty(province)) {
+                    locationSubList.add(province);
+                }
+                if (StringUtils.isNotEmpty(city)) {
+                    locationSubList.add(city);
+                }
+                if (StringUtils.isNotEmpty(distinct)) {
+                    locationSubList.add(distinct);
+                }
+            }
+
+            if (sinaNewsBo.getAreaLevel() == AreaLevelType.PROVINCE.getCode()) {
+                if (StringUtils.isNotEmpty(city)) {
+                    locationSubList.add(city);
+                }
+                if (StringUtils.isNotEmpty(distinct)) {
+                    locationSubList.add(distinct);
+                }
+            }
+
+            if (sinaNewsBo.getAreaLevel() == AreaLevelType.CITY.getCode()) {
+                if (StringUtils.isNotEmpty(distinct)) {
+                    locationSubList.add(distinct);
+                }
+            }
+
+            if (!locationSubList.isEmpty()) {
+                String locationSub = String.join("-", locationSubList);
+                sinaNewsBo.setLocationSub(locationSub);
+            }
+
+            if (sinaNewsBo.getAreaLevel() == 0) {
+                log.info("ai返回的地名没有识别到，那就使用文本判断:{}", title);
                 matchText(sinaNewsBo);
             }
-
-            if (sinaNewsBo.getAreaLevel() != 0) {
-                sinaNewsBo.setContent(CommonConst.NEWS_NOT_FOUND);
-            }
-
-
         }
 
 

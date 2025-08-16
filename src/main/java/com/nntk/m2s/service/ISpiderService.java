@@ -6,7 +6,4 @@ public interface ISpiderService {
 
     public void spiderI18nNews();
 
-
-
-
 }

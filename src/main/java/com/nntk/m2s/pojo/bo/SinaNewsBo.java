@@ -38,6 +38,11 @@ public class SinaNewsBo {
 
     private int type;
 
+    private int newsType;
+
+    private String locationSub;
+
+
     public String[] getKewordsArray() {
         if (type == 0) {
             return ArrayUtil.reverse(keywords.split(","));

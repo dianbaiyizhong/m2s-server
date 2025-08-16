@@ -1,19 +1,11 @@
 package com.nntk.m2s.service.impl;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.LocalDateTimeUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.toolkit.JoinWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.google.common.collect.Lists;
-import com.nntk.m2s.config.TimerCondition;
 import com.nntk.m2s.constant.AreaLevelType;
-import com.nntk.m2s.exception.NoDataException;
 import com.nntk.m2s.mp.custom.mapper.TMapNewsPreviewJoinMapper;
 import com.nntk.m2s.mp.generate.entity.*;
 import com.nntk.m2s.mp.generate.mapper.*;
@@ -34,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
@@ -200,6 +191,8 @@ public class NewsServiceImpl implements INewsService {
                     dto.setArticleTime(timestampUtc);
                     dto.setThumbImg(o.getThumbImg());
                     dto.setContent(o.getNewsContent());
+                    dto.setNewType(o.getNewsType());
+                    dto.setLocationSub(o.getLocationSubtitle());
                     dto.setSourceName(o.getSourceName());
                     dto.setSourceUrl(o.getSourceUrl());
                     return dto;

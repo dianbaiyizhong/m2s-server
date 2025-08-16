@@ -56,5 +56,7 @@ public class NewsVo implements Serializable {
     private Integer contentErrorNum;
 
 
+    private int newType;
+
     private int aggSum;
 }

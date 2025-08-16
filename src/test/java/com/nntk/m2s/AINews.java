@@ -14,6 +14,7 @@ import com.nntk.m2s.mp.generate.mapper.TProvinceMapper;
 import com.nntk.m2s.service.IAiService;
 import com.nntk.m2s.service.INewsService;
 
+import com.nntk.m2s.service.ISpiderService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,10 @@ class AINews {
     private INewsService newsService;
 
 
+    @Autowired
+    ISpiderService spiderService;
+
+
     @Test
     void testAiChat() {
 
@@ -65,14 +70,15 @@ class AINews {
     @Test
     void testBailian() throws NoApiKeyException, InputRequiredException {
 
-        String prompt = """
-                %s。返回这个新闻概要，要求markdown格式"""
-                .formatted("印度一女子应聘军警晕倒后在救护车上被轮奸，当地卫生部门甩锅给私人机构", CommonConst.NEWS_NOT_FOUND);
-
-        System.out.println(prompt);
-
-        String bailianResponse = aiService.getBailianResponse(prompt);
-        System.out.println(bailianResponse);
+        spiderService.spiderChinaNews();
+//        String prompt = """
+//                %s。返回这个新闻概要，要求markdown格式"""
+//                .formatted("印度一女子应聘军警晕倒后在救护车上被轮奸，当地卫生部门甩锅给私人机构", CommonConst.NEWS_NOT_FOUND);
+//
+//        System.out.println(prompt);
+//
+//        String bailianResponse = aiService.getBailianResponse(prompt);
+//        System.out.println(bailianResponse);
     }
 
 

@@ -1,4 +1,4 @@
-package com.nntk.m2s.config;
+package com.nntk.m2s.timer;
 
 import cn.hutool.core.util.ReUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -19,7 +19,8 @@ import java.time.LocalDateTime;
 
 @Component
 @Slf4j
-public class Timer {
+@Conditional(LocalCondition.class)
+public class VideoTimer {
     @Autowired
     private ISpiderService spiderService;
     @Autowired
@@ -29,25 +30,8 @@ public class Timer {
     @Autowired
     private TCctvTaskMapper cctvTaskMapper;
 
-    @Scheduled(cron = "0 30 * * * *")
-    @Conditional(TimerCondition.class)
-    public void scanNews() {
-        try {
-            spiderService.spiderI18nNews();
-            spiderService.spiderChinaNews();
-            log.info("采集新闻数据成功");
-        } catch (Exception e) {
-            log.error("定时任务执行异常", e);
-        } finally {
-            // 清理缓存
-            cacheManager.getCache("news").clear();
-        }
 
-    }
-
-
-    @Scheduled(cron = "0 30 * * * *")
-    @Conditional(LocalTimerCondition.class)
+    @Scheduled(cron = "0 53 * * * *")
     public void scanVideo() {
 
         String nameSpace = null;
