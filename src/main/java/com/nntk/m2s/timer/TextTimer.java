@@ -30,7 +30,7 @@ public class TextTimer {
     @Autowired
     private TCctvTaskMapper cctvTaskMapper;
 
-    @Scheduled(cron = "0 05 * * * *")
+    @Scheduled(cron = "0 30 * * * *")
     public void scanNews() {
         try {
             spiderService.spiderI18nNews();

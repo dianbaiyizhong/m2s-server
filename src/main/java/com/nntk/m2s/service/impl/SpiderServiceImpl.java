@@ -98,7 +98,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
         loadGeoData();
 
-        for (int i = 1; i <= 130; i++) {
+        for (int i = 1; i <= 5; i++) {
             Map<String, Object> paramMap = new LinkedHashMap<>();
             paramMap.put("pageid", "121");
             paramMap.put("lid", "1356");
@@ -251,6 +251,42 @@ public class SpiderServiceImpl implements ISpiderService {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void spiderI18nNewsByUrl(List urls) {
+        loadGeoData();
+
+        for (int i = 0; i < urls.size(); i++) {
+            String sourceUrl = urls.get(i).toString();
+            String html = httpRepository.get(sourceUrl);
+            Document parse = Jsoup.parse(html);
+
+            String title = parse.select(".main-title").text();
+            SinaNewsBo newsEntity = new SinaNewsBo();
+            newsEntity.setTitle(title);
+
+            boolean exists = newsMapper.exists(new QueryWrapper<TNews>().lambda()
+                    .eq(TNews::getTitle, title)
+            );
+            if (exists) {
+                log.warn("新闻标题已存在，跳过：{}", title);
+                continue;
+            }
+
+
+            newsEntity.setSourceUrl(sourceUrl);
+            newsEntity.setType(1);
+
+            try {
+                parseDetail(newsEntity);
+                insertNews2Db(newsEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("解析异常:{}:{}", title, e.getMessage());
+            }
+
+        }
     }
 
 

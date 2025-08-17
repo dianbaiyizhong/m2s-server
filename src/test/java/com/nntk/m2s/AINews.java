@@ -1,5 +1,7 @@
 package com.nntk.m2s;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import com.alibaba.dashscope.app.Application;
 import com.alibaba.dashscope.app.ApplicationParam;
 import com.alibaba.dashscope.app.ApplicationResult;
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,8 +76,10 @@ class AINews {
 
     @Test
     void testBailian() throws NoApiKeyException, InputRequiredException {
-        spiderService.spiderI18nNews();
-        spiderService.spiderChinaNews();
+        List<String> strings = FileUtil.readLines("/Users/huanghaoming/Documents/GitHub/m2s-server/src/main/resources/a.txt", Charset.defaultCharset());
+
+        spiderService.spiderI18nNewsByUrl(strings);
+//        spiderService.spiderChinaNews();
 //        videoTimer.scanVideo();
 //        String prompt = """
 //                %s。返回这个新闻概要，要求markdown格式"""
