@@ -6,6 +6,7 @@ import com.nntk.m2s.mp.generate.entity.TCctvTask;
 import com.nntk.m2s.mp.generate.mapper.TCctvTaskMapper;
 import com.nntk.m2s.service.ISpiderService;
 import com.nntk.m2s.service.IVideoService;
+import com.nntk.m2s.utils.YouTubeApi;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,13 +32,15 @@ public class VideoTimer {
     private TCctvTaskMapper cctvTaskMapper;
 
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 03 * * * *")
     public void scanVideo() {
 
         String nameSpace = null;
 
-        String url = "https://www.youtube.com/watch?v=MVT_77nHfL4&list=PL0eGJygpmOH5xQuy8fpaOvKrenoCsWrKh&index=1";
+        String url = null;
         try {
+            // 示例播放列表ID - 替换为你想要的播放列表ID
+            url = YouTubeApi.getPlayUrl();
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                     .timeout(10000)

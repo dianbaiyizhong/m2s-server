@@ -70,7 +70,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
 
     private void loadGeoData() {
-        if (provinceMap.size() == 0) {
+        if (provinceMap.isEmpty()) {
             List<TProvince> provinceList = provinceMapper.selectList(null);
             List<TCity> cityList = cityMapper.selectList(null);
             List<TCountry> countryList = countryMapper.selectList(null);
@@ -98,7 +98,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
         loadGeoData();
 
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= 130; i++) {
             Map<String, Object> paramMap = new LinkedHashMap<>();
             paramMap.put("pageid", "121");
             paramMap.put("lid", "1356");
@@ -110,6 +110,7 @@ public class SpiderServiceImpl implements ISpiderService {
             paramMap.put("_", "1751176001407");
             String url = "https://feed.sina.com.cn/api/roll/get?" + URLUtil.buildQuery(paramMap, Charset.defaultCharset());
 
+            log.info("开始爬取第{}页,{}", i, url);
 
             String html = HttpUtil.createGet(url).execute().body().replaceAll("try\\{feedCardJsonpCallback\\(", "").replaceAll("\\);}catch\\(e\\)\\{};", "");
             JSONObject jsonObject = JSON.parseObject(html);
@@ -150,10 +151,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
                         try {
                             parseDetail(newsEntity);
-                            if (newsEntity.getAreaLevel() == 4) {
-                                log.warn("误判为国际新闻，跳过:{}", newsEntity.getTitle());
-                                continue;
-                            }
+
                             insertNews2Db(newsEntity);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -481,7 +479,7 @@ public class SpiderServiceImpl implements ISpiderService {
 
         for (Map.Entry<Integer, String> entity : map.entrySet()) {
 
-            if (keyLike.contains(entity.getValue())) {
+            if (keyLike.equals(entity.getValue())) {
                 return entity.getKey();
             }
         }

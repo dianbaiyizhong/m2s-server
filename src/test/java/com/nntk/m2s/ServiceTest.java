@@ -54,7 +54,6 @@ public class ServiceTest {
     private ISpiderService ISpiderService;
 
 
-
     @Autowired
     private TNewsMapper newsMapper;
 
@@ -69,16 +68,12 @@ public class ServiceTest {
     public void importVideoNews() {
 
 
-
-
     }
 
     @Test
     void contextLoads() throws NoApiKeyException, InputRequiredException {
 
 //        newsService.getMapNewsCoverList(1, 10);
-
-
 
 
     }
@@ -218,19 +213,19 @@ public class ServiceTest {
                         tCity.setAreaCode(adcode);
                         tCity.setCityCode(cityCode);
                         tCity.setUpdateTime(LocalDateTime.now());
-                        cityMapper.insert(tCity);
+//                        cityMapper.insert(tCity);
                         log.info("城市:" + name + " - " + cityCode);
                     } else {
                         tCity.setUpdateTime(LocalDateTime.now());
-                        cityMapper.updateById(tCity);
+//                        cityMapper.updateById(tCity);
                     }
 
                 }
 
-                if (!centerNum.equals("00") && !rightNum.equals("00") && !rightNum.equals("01")) {
+
+                if (!centerNum.equals("00") && !rightNum.equals("00")) {
 
                     TDistinct tDistinct = distinctMapper.selectOne(new QueryWrapper<TDistinct>().lambda().eq(TDistinct::getName, name).eq(TDistinct::getAdCode, adcode));
-
                     if (tDistinct == null) {
                         log.info("县城:" + name + " - " + adcode);
                         tDistinct = new TDistinct();
@@ -238,16 +233,14 @@ public class ServiceTest {
                         tDistinct.setName(name);
                         tDistinct.setCityCode(cityCode);
                         tDistinct.setUpdateTime(LocalDateTime.now());
-                        // distinctMapper.insert(tDistinct);
+                        distinctMapper.insert(tDistinct);
                     } else {
                         tDistinct.setUpdateTime(LocalDateTime.now());
-                        // distinctMapper.updateById(tDistinct);
+                        distinctMapper.updateById(tDistinct);
                     }
-
                     // 执行完成后，update_time为null或者不是最新的，都是没有的数据，手动删掉即可
 
                 }
-
 
             }
         }
