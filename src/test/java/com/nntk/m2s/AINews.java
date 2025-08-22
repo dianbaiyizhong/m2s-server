@@ -76,11 +76,10 @@ class AINews {
 
     @Test
     void testBailian() throws NoApiKeyException, InputRequiredException {
-        List<String> strings = FileUtil.readLines("/Users/huanghaoming/Documents/GitHub/m2s-server/src/main/resources/a.txt", Charset.defaultCharset());
 
-        spiderService.spiderI18nNewsByUrl(strings);
+//        spiderService.spiderI18nNewsByUrl(strings);
 //        spiderService.spiderChinaNews();
-//        videoTimer.scanVideo();
+        videoTimer.scanVideo();
 //        String prompt = """
 //                %s。返回这个新闻概要，要求markdown格式"""
 //                .formatted("印度一女子应聘军警晕倒后在救护车上被轮奸，当地卫生部门甩锅给私人机构", CommonConst.NEWS_NOT_FOUND);

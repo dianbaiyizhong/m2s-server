@@ -1,5 +1,7 @@
 package com.nntk.m2s.utils;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.system.SystemUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.io.File;
 import java.util.*;
 
 @Slf4j
@@ -20,7 +23,7 @@ public class YouTubeApi {
         if (SystemUtil.getOsInfo().isWindows()) {
             System.setProperty("webdriver.chrome.driver", DRIVER_PATH);
         } else {
-            System.setProperty("webdriver.chrome.driver", "/Users/huanghaoming/Downloads/chromedriver-mac-arm64/chromedriver");
+            System.setProperty("webdriver.chrome.driver", "/Users/huanghaoming/Documents/software/chromedriver-mac-arm64/chromedriver");
         }
     }
 
@@ -30,10 +33,12 @@ public class YouTubeApi {
         options.addArguments("--remote-allow-origins=*");
         WebDriver driver = new ChromeDriver(options);
 
-        String youtubeEnterUrl = "https://www.youtube.com/results?search_query=" + "新闻联播";
+        String youtubeEnterUrl = "https://www.youtube.com/results?search_query=" + "新闻联播" + DateUtils.getLastYmdNow();
 
         driver.get(youtubeEnterUrl);
+        ThreadUtil.sleep(5000);
         String pageSource = driver.getPageSource();
+        FileUtil.writeString(pageSource, new File("youtube.html"), "UTF-8");
         Element content = Jsoup.parse(pageSource).select("#content").first();
 
         Elements elements = content.getElementsByTag("ytd-video-renderer");

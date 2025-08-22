@@ -23,6 +23,13 @@ public class DateUtils {
 
     }
 
+    public static String getLastYmdNow() {
+
+        return LocalDate.now().minusDays(1).
+                format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+    }
+
 
     public static LocalDateTime getLocalDateTimeByYmd(String ymd) {
         // 定义日期格式

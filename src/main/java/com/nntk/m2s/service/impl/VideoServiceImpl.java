@@ -88,7 +88,6 @@ public class VideoServiceImpl implements IVideoService {
         String cmd = ytDlpPath + " " +
                 "-o " + videoPath + " '" +
                 url + "'";
-        System.out.println(cmd);
         ProcessBuilder pb = new ProcessBuilder();
         pb.command("bash", "-c", cmd);
         Process proc = pb.start();
@@ -239,8 +238,8 @@ public class VideoServiceImpl implements IVideoService {
                     " --end " + convertToSeconds(endTime);
 
             int duration = convertToSeconds(endTime) - convertToSeconds(startTime);
-            if (duration < 20) {
-                log.warn("视频时长小于20秒, 跳过该新闻:{},{}", duration, title);
+            if (duration < 17) {
+                log.warn("视频时长小于17秒, 跳过该新闻:{},{}", duration, title);
                 continue;
             }
 

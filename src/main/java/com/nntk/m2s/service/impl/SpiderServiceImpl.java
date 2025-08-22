@@ -73,7 +73,9 @@ public class SpiderServiceImpl implements ISpiderService {
         if (provinceMap.isEmpty()) {
             List<TProvince> provinceList = provinceMapper.selectList(null);
             List<TCity> cityList = cityMapper.selectList(null);
-            List<TCountry> countryList = countryMapper.selectList(null);
+            List<TCountry> countryList = countryMapper.selectList(new QueryWrapper<TCountry>()
+                    .lambda().eq(TCountry::getEnable, true)
+            );
             List<TDistinct> distinctList = distinctMapper.selectList(null);
 
             provinceList.stream().forEach(item -> {

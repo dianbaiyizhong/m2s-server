@@ -12,6 +12,6 @@ FROM
     t_city c ON p.shorthand = c.province_short_hand
         LEFT JOIN
     t_distinct d ON c.city_code = d.city_code
+where  country.`enable` = 1
 ORDER BY
     p.name, c.name, d.name;
-
