@@ -32,7 +32,7 @@ public class VideoTimer {
     private TCctvTaskMapper cctvTaskMapper;
 
 
-    @Scheduled(cron = "0 59 * * * *")
+//    @Scheduled(cron = "0 59 * * * *")
     public void scanVideo() {
 
         String nameSpace = null;

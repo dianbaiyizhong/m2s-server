@@ -152,7 +152,7 @@ public class VideoServiceImpl implements IVideoService {
     public int buildVideo(String youtubeVideoUrl, String nameSpace) {
 
         // 初始化
-        List<TCountry> tCountries = countryMapper.selectList(null);
+        List<TCountry> tCountries = countryMapper.selectList(new QueryWrapper<TCountry>().lambda().eq(TCountry::getEnable, true));
         tCountries.forEach(tCountry -> {
             countryNameSet.add(tCountry.getName());
         });
@@ -168,6 +168,7 @@ public class VideoServiceImpl implements IVideoService {
         try {
             downloadYoutube(youtubeVideoUrl, nameSpace);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 

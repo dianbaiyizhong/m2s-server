@@ -31,6 +31,7 @@ public class NewsController {
 
 
         PageResult<NewsVo> geoResultVoPageResult = newsService.listNews(form);
+
         return RespBodyBuilder.success(geoResultVoPageResult);
     }
 

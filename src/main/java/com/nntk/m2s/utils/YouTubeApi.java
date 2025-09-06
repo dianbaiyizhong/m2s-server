@@ -39,22 +39,28 @@ public class YouTubeApi {
         ThreadUtil.sleep(5000);
         String pageSource = driver.getPageSource();
         FileUtil.writeString(pageSource, new File("youtube.html"), "UTF-8");
-        Element content = Jsoup.parse(pageSource).select("#content").first();
-
-        Elements elements = content.getElementsByTag("ytd-video-renderer");
-
-        for (Element element : elements) {
-
-            try {
-                Map<String, String> map = new HashMap<>();
-                String url = element.select("#video-title").attr("href");
-                driver.close();
-                return "https://www.youtube.com" + url;
-            } catch (Exception e) {
-                log.warn("spider warn:", e);
+        Elements contentEl = Jsoup.parse(pageSource).select("#content");
+        p1:
+        for (Element content : contentEl) {
+            Elements elements = content.getElementsByTag("ytd-video-renderer");
+            for (Element element : elements) {
+                try {
+                    Map<String, String> map = new HashMap<>();
+                    String title = element.select("#video-title").text();
+                    if (!title.contains("新闻联播")) {
+                        continue;
+                    }
+                    String url = element.select("#video-title").attr("href");
+                    driver.close();
+                    return "https://www.youtube.com" + url;
+                } catch (Exception e) {
+                    log.warn("spider warn:", e);
+                }
+                break p1;
             }
-            break;
         }
+
+
         driver.close();
         return null;
     }
