@@ -92,6 +92,9 @@ public class AiServiceImpl implements IAiService {
         if (content.contains(CommonConst.NEWS_NOT_FOUND)) {
             return CommonConst.NEWS_NOT_FOUND;
         }
+        if (content.contains("not found") || content.contains("statusCode")) {
+            return CommonConst.NEWS_NOT_FOUND;
+        }
         aiCache = new TAiCache();
         aiCache.setPromptMd5(MD5.create().digestHex(prompt + appId));
         aiCache.setPrompt(prompt);

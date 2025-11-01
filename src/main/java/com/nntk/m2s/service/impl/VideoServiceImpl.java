@@ -89,6 +89,7 @@ public class VideoServiceImpl implements IVideoService {
                 "-o " + videoPath + " '" +
                 url + "'";
         ProcessBuilder pb = new ProcessBuilder();
+        System.out.println(cmd);
         pb.command("bash", "-c", cmd);
         Process proc = pb.start();
         InputStream inputStream = proc.getInputStream();

@@ -1,7 +1,9 @@
 package com.nntk.m2s.service.impl;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -20,6 +22,7 @@ import com.nntk.m2s.service.ISpiderService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,6 +40,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +51,8 @@ public class SpiderServiceImpl implements ISpiderService {
     @Resource
     private TProvinceMapper provinceMapper;
 
+    @Autowired
+    private HttpRepository httpRepository;
     @Resource
     private TCountryMapper countryMapper;
 
@@ -92,6 +100,144 @@ public class SpiderServiceImpl implements ISpiderService {
             });
 
         }
+    }
+
+    @Override
+    public void spiderNearBy() throws InterruptedException {
+
+        List<TCity> tCities = cityMapper.selectList(new QueryWrapper<TCity>().lambda().isNotNull(TCity::getQqFlag));
+
+        // 线程池处理这个list
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(tCities.size());
+
+
+        for (int i = 0; i < tCities.size(); i++) {
+            TCity tCity = tCities.get(i);
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        spiderNearByEveryOne(tCity);
+                    } catch (Exception e) {
+                        log.error("爬取失败:{}", tCity.getName());
+                    } finally {
+                        latch.countDown(); // 任务完成，计数器减1
+                    }
+                }
+            });
+        }
+
+        // 等待所有任务完成
+        latch.await();
+        System.out.println("所有任务已完成！");
+        // 关闭线程池
+        executor.shutdown();
+
+    }
+
+    private void spiderNearByEveryOne(TCity tCity) {
+        String channel = tCity.getQqFlag();
+        String url = "https://i.news.qq.com/web_feed/getPCList";
+
+        // hutool 发送post请求
+
+        HttpRequest httpRequest = HttpUtil.createPost(url).body("""
+                {
+                	"base_req": {
+                		"from": "pc"
+                	},
+                	"forward": "2",
+                	"qimei36": "0_QNY78iPPCdfsf",
+                	"device_id": "0_QNY78iPPCdfsf",
+                	"flush_num": 1,
+                	"channel_id": "news_news_%s",
+                	"item_count": 12,
+                	"is_local_chlid": "1"
+                }
+                """.formatted(channel));
+        String bodyStr = httpRequest.execute().body();
+
+        JSONObject jsonObject = JSON.parseObject(bodyStr);
+        JSONArray newsData = jsonObject.getJSONArray("data");
+
+        for (int i = 0; i < newsData.size(); i++) {
+            JSONObject item = newsData.getJSONObject(i);
+            String title = item.getString("title");
+            String sourceUrl = item.getJSONObject("link_info").getString("url");
+
+            try {
+                String content = httpRepository.getByJsoup(sourceUrl);
+                Document document = Jsoup.parse(content);
+                String text = document.select("#article-content").text();
+                if (StringUtils.isEmpty(text)) {
+                    log.info("正文为空，跳过:{}", title);
+                    continue;
+                }
+
+                boolean exists = newsMapper.exists(new QueryWrapper<TNews>().lambda()
+                        .eq(TNews::getSourceUrl, sourceUrl)
+                );
+                if (exists) {
+                    log.info("新闻标题已存在，跳过：{}", title);
+                    continue;
+                }
+                String location = aiService.getBailianResponse(text, "9663aba5965641a29439dc6aac0ca2db");
+                if (location.equals(CommonConst.NEWS_NOT_FOUND)) {
+                    log.info("正文没有识别到地名:{}", title);
+                    continue;
+                }
+                log.info("location:{},title:{}", location, title);
+                Pair latlng = getLocation(tCity.getName() + location);
+
+                String sourceName = document.select(".media-name").text();
+
+                String articleTimeStr = document.select(".media-meta").select("span").get(0).text();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                LocalDateTime articleTime = LocalDateTime.parse(articleTimeStr, formatter);
+                try {
+                    TNews news = new TNews();
+                    news.setTitle(title);
+                    news.setNewsContent(content);
+                    news.setNewsTime(articleTime);
+                    news.setCreateTime(LocalDateTime.now());
+                    news.setAreaLevel(5);
+                    news.setAreaId(tCity.getId());
+//                    news.setThumbImg(newsEntity.getThumbUrl());
+                    news.setSourceName(sourceName);
+                    news.setSourceUrl(sourceUrl);
+//                    news.setImages(newsEntity.getImages());
+//                    news.setNewsType(newsEntity.getNewsType());
+                    news.setComboId(0);
+                    news.setLocationSubtitle(location);
+                    news.setMapNews(false);
+                    news.setLat(Double.parseDouble(latlng.getSecond().toString()));
+                    news.setLng(Double.parseDouble(latlng.getFirst().toString()));
+                    try {
+                        newsMapper.insert(news);
+                    } catch (Exception e) {
+                        log.warn(e.getMessage());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("解析异常:{}:{}", title, e.getMessage());
+                }
+
+            } catch (Exception e) {
+                log.error("请求异常:{}:{}", title, e.getMessage());
+            }
+
+
+        }
+    }
+
+    private static Pair getLocation(String location) {
+        String url = "https://restapi.amap.com/v3/geocode/geo?address=%s&output=json&key=ebd318900c3b5142ac3a1e63a580bff7".formatted(location);
+
+        String body = HttpUtil.createGet(url).execute().body();
+        JSONObject jsonObject = JSON.parseObject(body);
+        String result = jsonObject.getJSONArray("geocodes").getJSONObject(0).getString("location");
+        return Pair.create(result.split(",")[0], result.split(",")[1]);
     }
 
     @Override
@@ -298,9 +444,6 @@ public class SpiderServiceImpl implements ISpiderService {
         return LocalDateTime.ofInstant(instant, zone);
     }
 
-
-    @Autowired
-    private HttpRepository httpRepository;
 
     private void parseDetail(SinaNewsBo sinaNewsBo) {
         String body = httpRepository.get(sinaNewsBo.getSourceUrl());

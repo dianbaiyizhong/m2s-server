@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-08-16
+ * @since 2025-10-04
  */
 @TableName("t_city")
 public class TCity implements Serializable {
@@ -46,6 +46,8 @@ public class TCity implements Serializable {
     private LocalDateTime updateTime;
 
     private String provinceCode;
+
+    private String qqFlag;
     
     public Integer getId() {
         return id;
@@ -150,6 +152,14 @@ public class TCity implements Serializable {
       public void setProvinceCode(String provinceCode) {
           this.provinceCode = provinceCode;
       }
+    
+    public String getQqFlag() {
+        return qqFlag;
+    }
+
+      public void setQqFlag(String qqFlag) {
+          this.qqFlag = qqFlag;
+      }
 
     @Override
     public String toString() {
@@ -167,6 +177,7 @@ public class TCity implements Serializable {
                       ", intro = " + intro +
                       ", updateTime = " + updateTime +
                       ", provinceCode = " + provinceCode +
+                      ", qqFlag = " + qqFlag +
                   "}";
     }
 }

@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TAiCache;
  * </p>
  *
  * @author nntk
- * @since 2025-08-16
+ * @since 2025-10-04
  */
 public interface TAiCacheMapper extends BaseMapper<TAiCache> {
 

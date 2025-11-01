@@ -30,7 +30,7 @@ public class YouTubeApi {
 
     public static String getPlayUrl() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
+//        options.addArguments("--remote-allow-origins=*");
         WebDriver driver = new ChromeDriver(options);
 
         String youtubeEnterUrl = "https://www.youtube.com/results?search_query=" + "新闻联播" + DateUtils.getLastYmdNow();

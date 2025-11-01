@@ -7,8 +7,13 @@ import com.alibaba.dashscope.app.ApplicationParam;
 import com.alibaba.dashscope.app.ApplicationResult;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.nntk.m2s.constant.CommonConst;
+import com.nntk.m2s.mp.generate.entity.TCity;
 import com.nntk.m2s.mp.generate.mapper.TCityMapper;
 import com.nntk.m2s.mp.generate.mapper.TCountryMapper;
 import com.nntk.m2s.mp.generate.mapper.TNewsMapper;
@@ -19,6 +24,7 @@ import com.nntk.m2s.service.INewsService;
 import com.nntk.m2s.service.ISpiderService;
 import com.nntk.m2s.timer.VideoTimer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,6 +79,11 @@ class AINews {
         System.out.println(deepSeekResponse);
     }
 
+    @Test
+    void collectNearByNews() throws InterruptedException {
+
+       spiderService.spiderNearBy();
+    }
 
     @Test
     void testBailian() throws NoApiKeyException, InputRequiredException {

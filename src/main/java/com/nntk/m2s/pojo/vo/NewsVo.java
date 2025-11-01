@@ -58,5 +58,9 @@ public class NewsVo implements Serializable {
 
     private int newType;
 
+    private boolean mapNews;
+
     private int aggSum;
+
+    private int newsId;
 }

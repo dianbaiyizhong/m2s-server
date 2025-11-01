@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-08-16
+ * @since 2025-10-04
  */
 @TableName("t_cctv_task")
 public class TCctvTask implements Serializable {

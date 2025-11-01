@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author nntk
- * @since 2025-08-16
+ * @since 2025-10-04
  */
 @TableName("t_news")
 public class TNews implements Serializable {
@@ -55,6 +55,10 @@ public class TNews implements Serializable {
     private LocalDate formattedNewsDate;
 
     private Integer newsType;
+
+    private Double lat;
+
+    private Double lng;
     
     public Integer getId() {
         return id;
@@ -191,6 +195,22 @@ public class TNews implements Serializable {
       public void setNewsType(Integer newsType) {
           this.newsType = newsType;
       }
+    
+    public Double getLat() {
+        return lat;
+    }
+
+      public void setLat(Double lat) {
+          this.lat = lat;
+      }
+    
+    public Double getLng() {
+        return lng;
+    }
+
+      public void setLng(Double lng) {
+          this.lng = lng;
+      }
 
     @Override
     public String toString() {
@@ -212,6 +232,8 @@ public class TNews implements Serializable {
                       ", images = " + images +
                       ", formattedNewsDate = " + formattedNewsDate +
                       ", newsType = " + newsType +
+                      ", lat = " + lat +
+                      ", lng = " + lng +
                   "}";
     }
 }

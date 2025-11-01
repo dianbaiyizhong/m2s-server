@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface ISpiderService {
 
+    public void spiderNearBy() throws InterruptedException;
+
     public void spiderChinaNews();
 
     public void spiderI18nNews();

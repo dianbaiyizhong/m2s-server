@@ -116,6 +116,7 @@ public class NewsServiceImpl implements INewsService {
 
         List<TNews> mapNewsDBList = newsMapper.selectList(new QueryWrapper<TNews>().lambda()
                 .isNotNull(TNews::getAreaLevel)
+                 .ne(TNews::getAreaLevel,5)
                 .eq(TNews::getMapNews, false).ne(TNews::getAreaId, 0)
                 .and(ObjectUtils.nullSafeEquals(form.getRangeType(), 1), wrapper -> wrapper
                         .or().eq(TNews::getAreaLevel, AreaLevelType.PROVINCE.getCode())
@@ -160,9 +161,11 @@ public class NewsServiceImpl implements INewsService {
                             .title(tMapNewsDetail.getTitle())
                             .lat(tCountry.getLat())
                             .lng(tCountry.getLng())
+                            .mapNews(tMapNewsDetail.getMapNews())
                             .code(tCountry.getCode())
                             .locationSub(tMapNewsDetail.getLocationSubtitle())
                             .name(tCountry.getName())
+                            .newsId(tMapNewsDetail.getId())
                             .videoUrl(tMapNewsDetail.getVideoUrl())
                             .areaId(tMapNewsDetail.getAreaId())
                             .build()
@@ -192,6 +195,7 @@ public class NewsServiceImpl implements INewsService {
                     dto.setThumbImg(o.getThumbImg());
                     dto.setContent(o.getNewsContent());
                     dto.setNewType(o.getNewsType());
+                    dto.setMapNews(o.getMapNews());
                     dto.setLocationSub(o.getLocationSubtitle());
                     dto.setSourceName(o.getSourceName());
                     dto.setSourceUrl(o.getSourceUrl());
