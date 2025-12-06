@@ -1,6 +1,6 @@
 spring:
   cache:
-    cache-names: news
+    cache-names: news,getCalendar
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
@@ -26,7 +26,7 @@ bailian:
   apiKey: sk-cb80f6a73a5f4ffb80b12f3260eb7217
   appId: 3612d3d43acf4b77b695c0859d7a1da9
 
-# mybatis日志打印
+# mybatis日志打印 
 #mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

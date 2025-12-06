@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.TCity;
  * </p>
  *
  * @author nntk
- * @since 2025-10-04
+ * @since 2025-12-06
  */
 public interface TCityMapper extends BaseMapper<TCity> {
 

@@ -4,7 +4,7 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
   cache:
-    cache-names: news
+    cache-names: news,getCalendar
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root

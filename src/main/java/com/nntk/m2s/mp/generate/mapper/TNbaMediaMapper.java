@@ -1,7 +1,7 @@
 package com.nntk.m2s.mp.generate.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.nntk.m2s.mp.generate.entity.TCctvTask;
+import com.nntk.m2s.mp.generate.entity.TNbaMedia;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.nntk.m2s.mp.generate.entity.TCctvTask;
  * @author nntk
  * @since 2025-12-06
  */
-public interface TCctvTaskMapper extends BaseMapper<TCctvTask> {
+public interface TNbaMediaMapper extends BaseMapper<TNbaMedia> {
 
 }

@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ResultDataVo<T> {
+public class ResultDataVo<T> implements Serializable {
 
     /**
      * 业务状态码

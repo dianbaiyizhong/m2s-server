@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -15,21 +14,21 @@ import java.time.LocalDateTime;
  * @author nntk
  * @since 2025-12-06
  */
-@TableName("t_map_news_preview")
-public class TMapNewsPreview implements Serializable {
+@TableName("t_nba_media")
+public class TNbaMedia implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private LocalDateTime createTime;
-
     private String title;
 
-    private Integer coverId;
+    private String previewUrl;
 
-    private Boolean enable;
+    private String src;
+
+    private Integer type;
     
     public Integer getId() {
         return id;
@@ -37,14 +36,6 @@ public class TMapNewsPreview implements Serializable {
 
       public void setId(Integer id) {
           this.id = id;
-      }
-    
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-      public void setCreateTime(LocalDateTime createTime) {
-          this.createTime = createTime;
       }
     
     public String getTitle() {
@@ -55,30 +46,38 @@ public class TMapNewsPreview implements Serializable {
           this.title = title;
       }
     
-    public Integer getCoverId() {
-        return coverId;
+    public String getPreviewUrl() {
+        return previewUrl;
     }
 
-      public void setCoverId(Integer coverId) {
-          this.coverId = coverId;
+      public void setPreviewUrl(String previewUrl) {
+          this.previewUrl = previewUrl;
       }
     
-    public Boolean getEnable() {
-        return enable;
+    public String getSrc() {
+        return src;
     }
 
-      public void setEnable(Boolean enable) {
-          this.enable = enable;
+      public void setSrc(String src) {
+          this.src = src;
+      }
+    
+    public Integer getType() {
+        return type;
+    }
+
+      public void setType(Integer type) {
+          this.type = type;
       }
 
     @Override
     public String toString() {
-        return "TMapNewsPreview{" +
+        return "TNbaMedia{" +
                   "id = " + id +
-                      ", createTime = " + createTime +
                       ", title = " + title +
-                      ", coverId = " + coverId +
-                      ", enable = " + enable +
+                      ", previewUrl = " + previewUrl +
+                      ", src = " + src +
+                      ", type = " + type +
                   "}";
     }
 }

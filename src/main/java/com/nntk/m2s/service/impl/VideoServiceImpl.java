@@ -104,8 +104,9 @@ public class VideoServiceImpl implements IVideoService {
             }
         }
         proc.waitFor();
-        // 文件名可能叫raw.mp4.webm，将起改名字
-        FileUtil.rename(new File(videoPath), "raw.mp4", true);
+        // 将filePath目录下的mp4文件重命名为raw.mp4
+        FileUtil.rename(new File(filePath + FileUtil.listFileNames(filePath).get(0)), "raw.mp4", true);
+
 
     }
 

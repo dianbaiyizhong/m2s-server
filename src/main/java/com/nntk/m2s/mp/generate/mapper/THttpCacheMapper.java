@@ -9,7 +9,7 @@ import com.nntk.m2s.mp.generate.entity.THttpCache;
  * </p>
  *
  * @author nntk
- * @since 2025-10-04
+ * @since 2025-12-06
  */
 public interface THttpCacheMapper extends BaseMapper<THttpCache> {
 
